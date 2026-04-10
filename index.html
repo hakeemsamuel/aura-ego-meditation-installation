@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA>EGO - GUIDED SPATIAL WELLNESS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;900&family=Helvetica+Neue:wght@300;400;500;600;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+
+        .u-t {
+            font-weight: 600;
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            pointer-events: auto;
+        }
+
+        .u-p {
+            font-weight: 400;
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .u-tm {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .u-pr {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .p-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 0 10px currentColor;
+            transition: background 1s;
+        }
+
+        .ib-c {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        #i-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #fff, #fff);
+            transition: width 0.1s linear, background 1s;
+        }
+
+        .u-s {
+            font-size: 12px;
+            opacity: 0.7;
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
+        }
+
+        #g-overlay {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            width: 600px;
+            min-height: 60px;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 30px;
+            font-weight: 300;
+            font-size: 24px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        #g-overlay.act {
+            opacity: 1;
+            transform: translateX(-50%) scale(1.0);
+        }
+
+        #p-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -45%);
+            width: 400px;
+            height: 500px;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        #p-card.act {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+
+        .pc-t {
+            font-weight: 600;
+            font-size: 24px;
+            color: #fff;
+        }
+
+        .pc-i {
+            width: 300px;
+            height: 300px;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        .pc-d {
+            font-weight: 300;
+            font-size: 16px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        #p-strip {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 50;
+            border-bottom: none;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 40px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .s-i {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tl-c {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            position: relative;
+        }
+
+        #tl-b {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.1s linear, background 1s ease;
+        }
+
+        .pm-c {
+            position: absolute;
+            top: -3px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            pointer-events: none;
+        }
+
+        .mrk {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transform: translateX(-5px);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #b-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            border: 8px solid rgba(255, 255, 255, 0.05);
+            border-top: 8px solid #fff;
+            border-bottom: 8px solid #fff;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            pointer-events: none;
+            transition: transform 0.1s linear, opacity 0.5s ease, border-color 1s, box-shadow 1s;
+        }
+
+        #b-txt {
+            font-weight: 300;
+            font-size: 20px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        #f-tst {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -30px);
+            width: 200px;
+            height: 80px;
+            z-index: 60;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 22px;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        #f-tst.act {
+            opacity: 1;
+            transform: translate(-50%, -40px);
+            animation: gb 2s ease-out;
+        }
+
+        @keyframes gb {
+            0% {
+                transform: translate(-50%, -30px);
+                opacity: 0;
+            }
+
+            15% {
+                transform: translate(-50%, -45px);
+                opacity: 1;
+            }
+
+            30% {
+                transform: translate(-50%, -40px);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -40px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50px);
+            }
+        }
+
+        #c-hi {
+            position: absolute;
+            bottom: 100px;
+            right: 30px;
+            width: 220px;
+            padding: 15px;
+            z-index: 45;
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .cr {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-family: monospace;
+        }
+
+        .cr:last-child {
+            margin-bottom: 0;
+        }
+
+        .ky {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        #d-ov {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 340px;
+            padding: 20px;
+            z-index: 60;
+            display: none;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .dv-c {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .out-c {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .in-v {
+            display: none;
+        }
+
+        .ds {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        #p5-c {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #ldr {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 300;
+            font-size: 24px;
+            color: #FF5D8F;
+            z-index: 100;
+            letter-spacing: 2px;
+        }
+
+        /* AUDIO CONTROLS */
+        #a-ctrl {
+            position: absolute;
+            bottom: 180px;
+            right: 30px;
+            width: 220px;
+            padding: 15px;
+            z-index: 55;
+            font-size: 12px;
+        }
+
+        .ac-sl {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 767px) {
+            #ui-pane {
+                top: auto;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                border-radius: 16px 16px 0 0;
+                padding: 15px;
+                box-sizing: border-box;
+                pointer-events: auto;
+            }
+
+            #p-strip {
+                top: 0;
+                bottom: auto;
+                height: 40px;
+                padding: 0 15px;
+            }
+
+            #b-ring {
+                width: 250px;
+                height: 250px;
+            }
+
+            .pc-t {
+                font-size: 24px;
+            }
+
+            #p-card {
+                width: 100%;
+                height: 70%;
+                top: auto;
+                bottom: 0;
+                transform: translate(-50%, 0);
+                border-radius: 24px 24px 0 0;
+                padding: 20px;
+            }
+
+            #p-card.act {
+                transform: translate(-50%, 0);
+            }
+
+            #g-overlay {
+                top: 50px;
+                width: 90%;
+                font-size: 18px;
+            }
+
+            #c-hi {
+                display: none;
+            }
+
+            #a-ctrl {
+                bottom: 100px;
+                right: 15px;
+            }
+
+            .dv-c {
+                height: 120px;
+            }
+
+            #d-ov {
+                top: 50px;
+                right: 10px;
+                width: 300px;
+            }
+        }
+
+        #ort-prompt {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            color: white;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        @media (orientation: portrait) {
+            #ort-prompt {
+                display: flex;
+            }
+        }
+    
+        /* HOMEPAGE UI */
+        #homepage-ui {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1A0A1F 0%, #2D1040 100%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease-out;
+            opacity: 1;
+        }
+        .hp-title-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        .hp-circle {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(217, 70, 166, 0.4) 0%, rgba(155, 89, 208, 0) 70%);
+            opacity: 0.15;
+            animation: breathe 6s infinite ease-in-out;
+            pointer-events: none;
+            z-index: -1;
+        }
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.15; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.25; }
+        }
+        .hp-aura {
+            font-family: 'Neue Haas Grotesk Display Pro', 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 72px;
+            background: linear-gradient(135deg, #5ce1e6 0%, #9B59D0 50%, #D946A6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hp-sep {
+            font-size: 48px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+        }
+        .hp-ego {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 48px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .hp-tag {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 80px;
+        }
+        .hp-btn {
+            width: 240px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .hp-btn:hover {
+            box-shadow: 0 0 20px rgba(155, 89, 208, 0.5);
+            border-color: rgba(217, 70, 166, 0.8);
+            transform: scale(1.02);
+        }
+        .hp-inst {
+            position: absolute;
+            bottom: 60px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            animation: pulseText 3s infinite ease-in-out;
+        }
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* MODE SELECTION UI */
+        #mode-select-ui {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+        .ms-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .ms-sub {
+            font-size: 16px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 60px;
+        }
+        .ms-cards {
+            display: flex;
+            gap: 40px;
+        }
+        .ms-card {
+            width: 400px;
+            height: 500px;
+            padding: 24px;
+            box-sizing: border-box;
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .ms-card.mdt {
+            animation: slideUpFade 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .ms-card.yga {
+            animation: slideUpFade 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
+        
+        .ms-card.mdt:hover {
+            border-color: #9B59D0;
+            box-shadow: 0 10px 40px rgba(155, 89, 208, 0.4);
+            transform: scale(1.02) translateY(0);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .ms-card.yga:hover {
+            border-color: #FF5D8F;
+            box-shadow: 0 10px 40px rgba(255, 93, 143, 0.4);
+            transform: scale(1.02) translateY(0);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .mc-icon-area {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        .mc-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #fff;
+            text-align: center;
+        }
+        .mc-dur {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fff;
+            align-self: center;
+        }
+        .ms-card.mdt .mc-dur { background: #9B59D0; }
+        .ms-card.yga .mc-dur { background: #FF5D8F; }
+        .mc-desc {
+            font-size: 15px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .mc-feats {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            padding-left: 20px;
+            align-self: center;
+        }
+        .mc-feats li::before { content: "• "; color: rgba(255, 255, 255, 0.5); display: inline-block; width: 1em; margin-left: -1em; }
+        .ms-card .badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(90deg, #9B59D0, #D946A6);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .ms-bot {
+            position: absolute;
+            bottom: 40px;
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+        }
+        #meditation-card:hover {
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            transform: scale(1.02);
+        }
+        #meditation-card button:hover {
+            background: #FF00FF;
+            color: #0A0A0A;
+        }
+        #yoga-card:hover {
+            box-shadow: 0 0 20px rgba(255, 95, 31, 0.5);
+            transform: scale(1.02);
+        }
+        #yoga-card button:hover {
+            background: #FF5F1F;
+            color: #0A0A0A;
+        }
+        @media (max-width: 768px) {
+            #mode-select-ui h1 { font-size: 48px !important; }
+            #mode-select-ui > div { flex-direction: column !important; }
+            #meditation-card, #yoga-card { width: 280px !important; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="ort-prompt">Rotate device for best experience</div>
+    <div id="ldr">✨ Illuminating Space...</div>
+
+    <div id="homepage-ui">
+        <div class="hp-title-container">
+            <div class="hp-circle"></div>
+            <span class="hp-aura">AURA</span>
+            <span class="hp-sep">&gt;</span>
+            <span class="hp-ego">ego</span>
+        </div>
+        <div class="hp-tag">Guided Spatial Wellness</div>
+        <div class="hp-btn" onclick="goToModeSelection()">Begin Your Practice</div>
+        <div class="hp-inst">Press Space or click above to begin</div>
+    </div>
+
+    <div id="mode-select-ui" style="
+        background: #0A0A0A;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', sans-serif;
+    ">
+        <h1 style="
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF00FF 0%, #FF006E 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        ">AURA>EGO</h1>
+        
+        <p style="
+            font-size: 18px;
+            color: #FF6B9D;
+            opacity: 0.7;
+            margin-bottom: 80px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        ">Guided Spatial Wellness</p>
+        
+        <div style="display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; max-width: 800px;">
+            <div id="meditation-card" onclick="selectMode('MEDITATION_STRETCH')" style="
+                width: 320px;
+                padding: 30px;
+                background: rgba(10, 10, 10, 0.8);
+                border: 2px solid #FF00FF;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            ">
+                <h2 style="
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: #FF00FF;
+                    margin-bottom: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                ">Meditation & Stretch</h2>
+                
+                <p style="font-size: 12px; color: #FF6B9D; margin-bottom: 20px; text-transform: uppercase;">10 Minutes</p>
+                <p style="font-family: 'Outfit', sans-serif; font-size: 14px; color: #E0E0E0; line-height: 1.6; margin-bottom: 20px;">Gentle upright stretches and mindfulness. Stay standing throughout. Perfect for all comfort levels.</p>
+                
+                <ul style="font-family: 'Outfit', sans-serif; font-size: 13px; color: #B0B0B0; list-style: none; padding: 0;">
+                    <li>• Standing poses only</li>
+                    <li>• Meditative guidance</li>
+                    <li>• Breathing focus</li>
+                    <li>• Gentle movement</li>
+                </ul>
+                
+                <button style="
+                    width: 100%;
+                    margin-top: 20px;
+                    padding: 12px;
+                    background: none;
+                    border: 1px solid #FF00FF;
+                    color: #FF00FF;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    transition: all 0.3s ease;
+                ">Begin Meditation</button>
+            </div>
+            
+            <div id="yoga-card" onclick="selectMode('GUIDED_YOGA')" style="
+                width: 320px;
+                padding: 30px;
+                background: rgba(10, 10, 10, 0.8);
+                border: 2px solid #FF5F1F;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            ">
+                <h2 style="
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: #FF5F1F;
+                    margin-bottom: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                ">Guided Yoga Flow</h2>
+                
+                <p style="font-size: 12px; color: #FF6B9D; margin-bottom: 20px; text-transform: uppercase;">10 Minutes</p>
+                <p style="font-family: 'Outfit', sans-serif; font-size: 14px; color: #E0E0E0; line-height: 1.6; margin-bottom: 20px;">Complete yoga sequence with floor poses. For those comfortable with yoga practice. Full body engagement.</p>
+                
+                <ul style="font-family: 'Outfit', sans-serif; font-size: 13px; color: #B0B0B0; list-style: none; padding: 0;">
+                    <li>• Full yoga sequence</li>
+                    <li>• Floor poses included</li>
+                    <li>• Alignment cues</li>
+                    <li>• Dynamic movement</li>
+                </ul>
+                
+                <button style="
+                    width: 100%;
+                    margin-top: 20px;
+                    padding: 12px;
+                    background: none;
+                    border: 1px solid #FF5F1F;
+                    color: #FF5F1F;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    transition: all 0.3s ease;
+                ">Begin Yoga</button>
+            </div>
+        </div>
+        
+        <p style="
+            position: absolute;
+            bottom: 40px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            color: #B0B0B0;
+            opacity: 0.5;
+        ">Press 'M' anytime to return to this menu</p>
+    </div>
+
+    <div id="ui-pane" class="glm">
+        <div class="u-t" style="display:flex;justify-content:space-between;">AURA&gt;ego <button id="cam-btn"
+                style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">📷</button></div>
+        <div class="u-p" id="u-pn">IDLE</div>
+        <div class="u-tm" id="u-tr">0:00 remaining</div>
+        <div class="u-pr">
+            <div class="p-dot" id="u-pd"></div><span id="u-phn">Waiting...</span>
+        </div>
+        <div class="ib-c">
+            <div id="i-bar"></div>
+        </div>
+        <div class="u-s"><span id="u-pt">P: 0</span><span id="u-fps">FPS: 0/1</span></div>
+    </div>
+    <div id="g-overlay" class="glm">Welcome. Find your ground.</div>
+    <div id="p-card" class="glm">
+        <div class="pc-t" id="pc-tit">Mountain Pose</div>
+        <div class="pc-i">Image 300×300px</div>
+        <div class="pc-d" id="pc-dsc">Stand tall.</div>
+    </div>
+    <div id="b-ring" class="glm"><span id="b-txt">inhale</span></div>
+    <div id="f-tst" class="glm">Perfect ✨</div>
+    <div id="c-hi" class="glm">
+        <div style="font-weight:600;margin-bottom:12px;">Controls</div>
+        <div class="cr"><span>Start/Pause</span><span class="ky">Space</span></div>
+        <div class="cr"><span>Restart</span><span class="ky">R</span></div>
+        <div class="cr"><span>Next Pose</span><span class="ky">N</span></div>
+        <div class="cr"><span>Debug Mode</span><span class="ky">D</span></div>
+    </div>
+    <div id="a-ctrl" class="glm">
+        <div style="font-weight:600;display:flex;justify-content:space-between;cursor:pointer;"
+            onclick="let p=document.getElementById('ac-opts');p.style.display=p.style.display==='none'?'block':'none'">
+            <span>Audio System</span><span>▲</span></div>
+        <div id="ac-opts" style="display:none;margin-top:10px;">
+            <label>Master Vol <input type="range" class="ac-sl" id="v-mst" min="0" max="1" step="0.05"
+                    value="1"></label>
+            <label><input type="checkbox" id="v-voi" checked> Voice Guidance</label><br><label><input type="checkbox"
+                    id="v-amb" checked> Ambient Layers</label>
+            <button id="v-mte"
+                style="margin-top:10px;width:100%;padding:5px;background:rgba(255,255,255,0.2);border:none;border-radius:4px;color:#fff;cursor:pointer;">Mute
+                All</button>
+        </div>
+    </div>
+    <div id="p-strip" class="glm">
+        <div class="s-i"><span id="s-pn">IDLE</span><span id="s-tm">0:00 / 10:40</span></div>
+        <div class="tl-c">
+            <div id="tl-b"></div>
+            <div class="pm-c" id="pm-cnt"></div>
+        </div>
+    </div>
+    <div id="d-ov" class="glm">
+        <div style="color:#fff;font-weight:bold;margin-bottom:10px;">DEBUG METRICS</div>
+        <div class="dv-c"><canvas class="out-c" width="640" height="480"></canvas></div>
+        <div class="ds"><span>Target Pose:</span><span id="db-p">None</span></div>
+        <div class="ds"><span>Intensity:</span><span id="db-i">0.00</span></div>
+        <div class="ds"><span>CoM Y:</span><span id="db-c">0.50</span></div>
+        <div class="ds"><span>Quality Mul:</span><span id="db-q">1.0</span></div>
+    </div>
+    <video class="in-v" autoplay playsinline></video>
+    <div id="p5-c"></div>
+
+    <script>
+        // ---------- GLOBAL & CONFIG ----------
+        let pLMs = null, coM = { x: 0.5, y: 0.5 }, smI = 0, dbg = false, mdLd = false, pzd = false, hC = false;
+        let sTm = -1, sCmp = false, lFt = Date.now(), curGrav = 0, curDrg = 0.98;
+        
+        let MAX_T = 640;
+        const MODES = { A: 'MEDITATION_STRETCH', B: 'GUIDED_YOGA' };
+        let currentMode = null;
+
+        const appStates = { HOMEPAGE: 'homepage', MODE_SELECTION: 'mode_selection', SESSION_ACTIVE: 'session_active' };
+        let currentState = appStates.HOMEPAGE;
+        let ptModeHover = 0; // 0=none, 1=meditation, 2=yoga
+        let camStarted = false;
+
+        const PHS_A = [
+            { id: 1, st: 0, nd: 120, nm: 'GROUNDING', b1: '#2D1525', b2: '#4A2A44', c: ['#E6B3FF', '#FFB3BA'], br: '#E6B3FF', rv: 0.4 },
+            { id: 2, st: 120, nd: 300, nm: 'GENTLE MOVEMENT', b1: '#4A2A44', b2: '#6B3D66', c: ['#FFB3BA', '#FFDFBA'], br: '#FFDFBA', rv: 0.5 },
+            { id: 3, st: 300, nd: 420, nm: 'OPENING', b1: '#6B3D66', b2: '#A3687F', c: ['#FFDFBA', '#FFFFBA'], br: '#FFFFBA', rv: 0.7 },
+            { id: 4, st: 420, nd: 540, nm: 'STILLNESS', b1: '#A3687F', b2: '#D6899E', c: ['#E6B3FF', '#FFB3BA'], br: '#FFB3BA', rv: 0.9 },
+            { id: 5, st: 540, nd: 600, nm: 'INTEGRATION', b1: '#D6899E', b2: '#2D1525', c: ['#B3C6FF', '#E6B3FF'], br: '#B3C6FF', rv: 0.5 }
+        ];
+        const PHS_B = [
+            { id: 1, st: 0, nd: 120, nm: 'GROUNDING', b1: '#2D1040', b2: '#4A1958', c: ['#FF10F0', '#FF006E'], br: '#4A1958', rv: 0.3 },
+            { id: 2, st: 120, nd: 300, nm: 'FLOW', b1: '#4A1958', b2: '#8D3087', c: ['#F72585', '#FF5D8F'], br: '#F72585', rv: 0.6 },
+            { id: 3, st: 300, nd: 420, nm: 'EXPANSION', b1: '#8D3087', b2: '#C4556F', c: ['#FF5D8F', '#FFB627', '#FF8500'], br: '#FF8500', rv: 0.8 },
+            { id: 4, st: 420, nd: 540, nm: 'PEAK', b1: '#C4556F', b2: '#FFA040', c: ['#FF10F0', '#F72585', '#FF5D8F', '#FFB627', '#FF8500', '#FFD700'], br: '#FFD700', rv: 1.0 },
+            { id: 5, st: 540, nd: 640, nm: 'INTEGRATION', b1: '#FFA040', b2: '#2D1040', c: ['#FFB627', '#E0B0FF', '#FF10F0'], br: '#E0B0FF', rv: 0.4 }
+        ];
+        let PHS = PHS_B;
+
+        const PSS_A = [
+            { n: "Mountain Pose", st: 5, nd: 35, ph: 1, t: "STANDING" },
+            { n: "Standing Arm Raises", st: 35, nd: 65, ph: 1, t: "STANDING_UP" },
+            { n: "Standing Side Stretch", st: 65, nd: 95, ph: 1, t: "STANDING" },
+            { n: "Partial Forward Fold", st: 95, nd: 125, ph: 1, t: "STANDING_P_FOLD" },
+            { n: "Standing Twist", st: 125, nd: 170, ph: 2, t: "STANDING" },
+            { n: "Standing Hip Circles", st: 170, nd: 215, ph: 2, t: "STANDING" },
+            { n: "Standing Arm Circles", st: 215, nd: 260, ph: 2, t: "STANDING" },
+            { n: "Standing Tree Prep", st: 260, nd: 305, ph: 2, t: "STANDING" },
+            { n: "Standing Chest Opener", st: 305, nd: 350, ph: 3, t: "STANDING_WIDE" },
+            { n: "Standing Side Reach", st: 350, nd: 395, ph: 3, t: "STANDING_REACH" },
+            { n: "Standing Heart Opener", st: 395, nd: 425, ph: 3, t: "STANDING" },
+            { n: "Standing Meditation", st: 425, nd: 515, ph: 4, t: "STANDING_MED" },
+            { n: "Gentle Standing Sway", st: 515, nd: 545, ph: 5, t: "STANDING" },
+            { n: "Standing Gratitude", st: 545, nd: 585, ph: 5, t: "STANDING_MED" }
+        ];
+        const PSS_B = [
+            { n: "Mountain Pose", st: 5, nd: 35, ph: 1, t: "STANDING" }, { n: "Raised Hands", st: 35, nd: 65, ph: 1, t: "STANDING_UP" },
+            { n: "Side Stretch", st: 65, nd: 95, ph: 1, t: "STANDING" }, { n: "Forward Fold", st: 95, nd: 125, ph: 1, t: "STANDING_FOLD" },
+            { n: "Cat-Cow", st: 125, nd: 185, ph: 2, t: "FLOOR" }, { n: "Downward Dog", st: 190, nd: 235, ph: 2, t: "FLOOR_INV" },
+            { n: "Child's Pose", st: 240, nd: 285, ph: 2, t: "FLOOR_R" }, { n: "Seated Twist", st: 290, nd: 320, ph: 2, t: "SEATED" },
+            { n: "Warrior I", st: 325, nd: 370, ph: 3, t: "STANDING_A_U" }, { n: "Warrior II", st: 375, nd: 420, ph: 3, t: "STANDING_A_S" },
+            { n: "Triangle", st: 425, nd: 455, ph: 3, t: "STANDING" }, { n: "Seated Meditation", st: 455, nd: 545, ph: 4, t: "SEATED_MED" },
+            { n: "Supine Twist", st: 545, nd: 590, ph: 5, t: "LYING" }, { n: "Savasana", st: 595, nd: 640, ph: 5, t: "LYING_R" }
+        ];
+        let PSS = PSS_B;
+
+        function updateModeUI() {
+            let n = currentMode === MODES.A ? 'Mode A: Meditation & Stretch' : (currentMode === MODES.B ? 'Mode B: Guided Yoga Flow' : 'IDLE');
+            let mt = document.getElementById('u-mode-title');
+            if (!mt) { mt = document.createElement('div'); mt.id = 'u-mode-title'; mt.className = 'u-p'; mt.style.color = '#fff'; mt.style.marginBottom = '8px'; mt.style.fontWeight = 'bold'; let up = document.getElementById('u-pn'); up.parentNode.insertBefore(mt, up); }
+            mt.innerText = n;
+        }
+
+        function changeState(newState) {
+            let hp = document.getElementById('homepage-ui');
+            let ms = document.getElementById('mode-select-ui');
+            let up = document.getElementById('ui-pane');
+            let ps = document.getElementById('p-strip');
+            let dOr = document.getElementById('ort-prompt');
+            
+            if (newState === appStates.HOMEPAGE) {
+                sTm = -1; currentMode = null; ptc = []; sCmp = false; pzd = false; cWl();
+                up.style.opacity = '0'; ps.style.opacity = '0';
+                hp.style.display = 'flex';
+                setTimeout(() => { hp.style.opacity = '1'; }, 50);
+                ms.style.opacity = '0';
+                setTimeout(() => { ms.style.display = 'none'; ms.style.pointerEvents = 'auto'; }, 1000);
+                if(document.getElementById('ldr')) document.getElementById('ldr').style.display = 'none';
+            } 
+            else if (newState === appStates.MODE_SELECTION) {
+                sTm = -1; currentMode = null; ptc = []; sCmp = false; pzd = false; cWl();
+                up.style.opacity = '0'; ps.style.opacity = '0';
+                hp.style.opacity = '0';
+                setTimeout(() => { hp.style.display = 'none'; }, 1000);
+                ms.style.display = 'flex';
+                setTimeout(() => { ms.style.opacity = '1'; ms.style.pointerEvents = 'auto'; if(!camStarted){initCamera();} initAu(); }, 50);
+            }
+            else if (newState === appStates.SESSION_ACTIVE) {
+                hp.style.opacity = '0';
+                ms.style.opacity = '0';
+                ms.style.pointerEvents = 'none';
+                setTimeout(() => { hp.style.display = 'none'; ms.style.display = 'none'; ms.style.pointerEvents = 'auto'; }, 800);
+                up.style.opacity = '1'; ps.style.opacity = '1';
+                setTimeout(() => { sTm = 0; pzd = false; hC = false; rWl(); initAu(); pSfx('bowl_start.mp3', 0.8, 0, 0.8); }, 800);
+            }
+            currentState = newState;
+        }
+
+        function goToModeSelection() { if (currentState === appStates.HOMEPAGE) { changeState(appStates.MODE_SELECTION); initAu(); } }
+
+        function selectMode(m) {
+            currentMode = (m === 'MEDITATION_STRETCH' ? MODES.A : MODES.B);
+            if (currentMode === MODES.A) { PHS = PHS_A; PSS = PSS_A; GDS = GDS_A; MAX_T = 600; }
+            else { PHS = PHS_B; PSS = PSS_B; GDS = GDS_B; MAX_T = 640; }
+            
+            let mkC = document.getElementById('pm-cnt');
+            mkC.innerHTML = '';
+            PHS.forEach(p => { let k = document.createElement('div'); k.className = 'mrk'; k.style.left = (p.st / MAX_T * 100) + '%'; k.style.background = p.b2; mkC.appendChild(k); });
+            updateModeUI();
+            changeState(appStates.SESSION_ACTIVE);
+        }
+
+        const GDS_A = [
+            { t: 5, x: "Welcome. Notice your feet on the ground.", a: "ma_01" },
+            { t: 35, x: "Breathe in, gently raise your arms.", a: "ma_02" },
+            { t: 65, x: "Feel the space as you stretch to the side.", a: "ma_03" },
+            { t: 95, x: "Soft knees. Gently fold forward.", a: "ma_04" },
+            { t: 125, x: "Rise. Rotate and twist softly.", a: "ma_05" },
+            { t: 170, x: "Circle the hips. Find your center.", a: "ma_06" },
+            { t: 215, x: "Let your arms circle like natural breath.", a: "ma_07" },
+            { t: 260, x: "Shift your weight. Prepare for balance.", a: "ma_08" },
+            { t: 305, x: "Open your chest and heart.", a: "ma_09" },
+            { t: 350, x: "Reach softly to the sides.", a: "ma_10" },
+            { t: 395, x: "Heart opener. Breathe fully.", a: "ma_11" },
+            { t: 425, x: "Standing meditation. Be present.", a: "ma_12" },
+            { t: 470, x: "Notice the stillness within.", a: "ma_13" },
+            { t: 515, x: "Gentle sway, like a tree in the wind.", a: "ma_14" },
+            { t: 545, x: "Gratitude. Hands to the heart.", a: "ma_15" },
+            { t: 575, x: "Rest and integrate.", a: "ma_16" }
+        ];
+        const GDS_B = [
+            { t: 5, x: "Welcome. Let's begin with Mountain Pose.", a: "m_01" }, { t: 15, x: "Stand tall.", a: "m_02" }, { t: 35, x: "Raise arms overhead.", a: "r_01" },
+            { t: 65, x: "Gently bend right.", a: "s_01" }, { t: 95, x: "Fold forward.", a: "f_01" }, { t: 125, x: "Hands and knees. Cat-Cow.", a: "c_01" },
+            { t: 190, x: "Downward Dog.", a: "d_01" }, { t: 240, x: "Child's Pose.", a: "ch_01" }, { t: 290, x: "Seated twist right.", a: "tw_01" },
+            { t: 325, x: "Rise up. Warrior I.", a: "w1_01" }, { t: 375, x: "Warrior II.", a: "w2_01" }, { t: 425, x: "Triangle.", a: "tr_01" },
+            { t: 455, x: "Seated Meditation.", a: "sm_01" }, { t: 510, x: "Stillness is power.", a: "sm_03" }, { t: 545, x: "Supine Twist.", a: "su_01" },
+            { t: 595, x: "Savasana.", a: "sa_01" }, { t: 620, x: "Rest completely.", a: "sa_02" }
+        ];
+        let GDS = GDS_B;
+
+
+        function fT(s) { let m = Math.floor(s / 60), sx = Math.floor(s % 60); return `${m}:${sx < 10 ? '0' : ''}${sx}`; }
+        // mkC initialized in selectMode
+
+        // ---------- AUDIO API (MILESTONE 9) ----------
+        let actx, mGn, vGn, aGn, rGn, drGn, cnv, bBse, bMid, bHgh, aRdy = false;
+        let vOn = true, aOn = true, mMt = false;
+
+        function initAu() {
+            if (actx) return; actx = new (window.AudioContext || window.webkitAudioContext)();
+            mGn = actx.createGain(); mGn.connect(actx.destination);
+            vGn = actx.createGain(); vGn.connect(mGn); aGn = actx.createGain(); aGn.connect(mGn);
+            rGn = actx.createGain(); drGn = actx.createGain(); cnv = actx.createConvolver();
+            let r = actx.sampleRate, d = 3.0, l = r * d, imp = actx.createBuffer(2, l, r);
+            for (let c = 0; c < 2; c++) { let cd = imp.getChannelData(c); for (let i = 0; i < l; i++)cd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / l, 2.0); }
+            cnv.buffer = imp; rGn.connect(cnv); cnv.connect(mGn); drGn.connect(mGn); rGn.gain.value = 0.3;
+
+            let lA = (src) => { let au = new Audio(src); au.loop = true; let n = actx.createMediaElementSource(au); n.connect(aGn); return au; }
+            bBse = lA('audio/ambient_base.mp3'); bMid = lA('audio/ambient_mid.mp3'); bHgh = lA('audio/ambient_high.mp3');
+            bBse.volume = 0.15; bMid.volume = 0.12; bHgh.volume = 0.08;
+            bBse.play().catch(e => { }); bMid.play().catch(e => { }); bHgh.play().catch(e => { });
+            aRdy = true;
+        }
+
+        function pSfx(src, v = 0.5, p = 0, rv = 0.5) {
+            if (!aRdy || mMt) return; let au = new Audio(`audio/${src}`); let sn = actx.createMediaElementSource(au);
+            let gn = actx.createGain(), pn = actx.createStereoPanner(); gn.gain.value = v; pn.pan.value = p;
+            sn.connect(gn).connect(pn).connect(drGn); let rg = actx.createGain(); rg.gain.value = rv; pn.connect(rg).connect(rGn);
+            au.play().catch(e => { });
+        }
+
+        function pVoc(id) {
+            if (!aRdy || !vOn || mMt) return; let au = new Audio(`audio/${id}.mp3`); let sn = actx.createMediaElementSource(au);
+            let gn = actx.createGain(), pn = actx.createStereoPanner(); gn.gain.value = 0.9; pn.pan.value = 0;
+            sn.connect(gn).connect(pn).connect(drGn); pn.connect(rGn);
+            aGn.gain.linearRampToValueAtTime(0.7, actx.currentTime + 0.5); // Duck
+            au.onended = () => { aGn.gain.linearRampToValueAtTime(1.0, actx.currentTime + 2.0); };
+            au.play().catch(e => { });
+        }
+
+        document.getElementById('v-mst').oninput = e => { if (mGn) mGn.gain.value = e.target.value; }
+        document.getElementById('v-voi').onchange = e => { vOn = e.target.checked; }
+        document.getElementById('v-amb').onchange = e => { aOn = e.target.checked; if (aGn) aGn.gain.value = aOn ? 1 : 0; }
+        document.getElementById('v-mte').onclick = () => { mMt = !mMt; document.getElementById('v-mte').style.background = mMt ? '#F72585' : 'rgba(255,255,255,0.2)'; if (mGn) mGn.gain.value = mMt ? 0 : document.getElementById('v-mst').value; }
+
+        // ---------- MOBILE & HAPTICS (MILESTONE 10) ----------
+        let isM = window.innerWidth <= 767;
+        function qVb(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+        let wL = null; async function rWl() { try { if (navigator.wakeLock) { wL = await navigator.wakeLock.request('screen'); } } catch (e) { } }
+        function cWl() { if (wL) { wL.release(); wL = null; } }
+
+        let fCm = localStorage.getItem('auraCam') || 'user';
+        document.getElementById('cam-btn').onclick = () => { fCm = fCm === 'user' ? 'environment' : 'user'; localStorage.setItem('auraCam', fCm); location.reload(); };
+
+        // Touch Controls
+        let lstTp = 0, lTps = 0, mtT;
+        window.addEventListener('touchstart', e => {
+            initAu();
+            if (e.touches.length === 3) { dbg = !dbg; document.getElementById('d-ov').style.display = dbg ? 'block' : 'none'; return; }
+            let nw = Date.now();
+            if (nw - lstTp < 300) { if (sTm >= 0) { pzd = !pzd; qVb(50); } lTps = 0; clearTimeout(mtT); }
+            else { lTps = 1; mtT = setTimeout(() => { if (lTps === 1 && sTm >= 0) { sTm = -1; ptc = []; sCmp = false; pzd = false; qVb(500); } }, 1500); }
+            lstTp = nw; e.tChSx = e.touches[0].clientX; e.tChSy = e.touches[0].clientY;
+        });
+        window.addEventListener('touchend', e => {
+            clearTimeout(mtT);
+            if (e.changedTouches) {
+                let dX = e.changedTouches[0].clientX - e.target.tChSx;
+                if (dX > 100 && sTm >= 0) { let nP = PSS.find(p => sTm < p.st); if (nP) { sTm = nP.st; qVb([30, 30]); } else sTm = MAX_T; }
+            }
+            if (lTps === 1) { 
+                if (currentState === appStates.HOMEPAGE) { goToModeSelection(); }
+                else if (currentState === appStates.SESSION_ACTIVE && sTm >= 0) { pzd = !pzd; }
+            }
+            lTps = 0;
+        });
+        let lx = 0, ly = 0, lz = 0, lu = Date.now();
+        window.addEventListener('devicemotion', e => {
+            let ac = e.accelerationIncludingGravity, n = Date.now();
+            if (n - lu > 100) { let d = (Math.abs(ac.x + ac.y + ac.z - lx - ly - lz) / (n - lu)) * 10000; if (d > 150 && sTm >= 0) { let nP = PSS.find(p => sTm < p.st); if (nP) sTm = nP.st; } lx = ac.x; ly = ac.y; lz = ac.z; lu = n; }
+        });
+        window.addEventListener('keydown', e => {
+            initAu();
+            if (e.key === ' ') { 
+                if (currentState === appStates.HOMEPAGE) { goToModeSelection(); }
+                else if (currentState === appStates.SESSION_ACTIVE && sTm >= 0) { pzd = !pzd; } 
+            }
+            if (e.key === 'h' || e.key === 'H') { changeState(appStates.HOMEPAGE); updateModeUI(); }
+            if (e.key === 'r' || e.key === 'R') { let lstM = currentMode; if(lstM) selectMode(lstM === MODES.A ? 'MEDITATION_STRETCH' : 'GUIDED_YOGA'); }
+            if (e.key === 'm' || e.key === 'M') { changeState(appStates.MODE_SELECTION); updateModeUI(); }
+            if (e.key === '1') { if (currentState !== appStates.SESSION_ACTIVE) { goToModeSelection(); selectMode('MEDITATION_STRETCH'); } }
+            if (e.key === '2') { if (currentState !== appStates.SESSION_ACTIVE) { goToModeSelection(); selectMode('GUIDED_YOGA'); } }
+            if (e.key === 'p' || e.key === 'P') { if (sTm >= 0) pzd = !pzd; }
+            if (e.key === 'n' || e.key === 'N') { if (sTm >= 0) { let nP = PSS.find(p => sTm < p.st); if (nP) sTm = nP.st; else sTm = MAX_T; } }
+            if (e.key === 'd' || e.key === 'D') { dbg = !dbg; document.getElementById('d-ov').style.display = dbg ? 'block' : 'none'; }
+        });
+
+        // ---------- MEDIAPIPE ----------
+        let fb = { act: false, pn: null, glow: 0 };
+        function cPM(t, l) {
+            if (!l) return false; let lw = l[15], rw = l[16], ls = l[11], rs = l[12], lh = l[23], rh = l[24];
+            if (!lw || lw.visibility < 0.3) return false; let sY = (ls.y + rs.y) / 2, hY = (lh.y + rh.y) / 2, wY = (lw.y + rw.y) / 2, wD = Math.abs(lw.x - rw.x), sD = Math.abs(ls.x - rs.x);
+            switch (t) {
+                case "Mountain Pose": return hY > sY + 0.1 && wY > hY; case "Raised Hands": case "Warrior I": return wY < sY;
+                case "Side Stretch": return Math.abs(ls.y - rs.y) > 0.08; case "Forward Fold": return hY < sY + 0.1;
+                case "Cat-Cow": case "Downward Dog": return hY > 0.3 && wY > hY; case "Child's Pose": return sY > 0.5 && Math.abs(sY - hY) < 0.2;
+                case "Warrior II": case "Triangle": case "Standing Chest Opener": return wD > sD * 1.5; 
+                case "Seated Meditation": case "Seated Twist": return hY > 0.4 && Math.abs(sY - hY) < 0.35;
+                case "Supine Twist": case "Savasana": return Math.abs(sY - hY) < 0.15 && sY > 0.5;
+                case "Standing Arm Raises": return wY < sY;
+                case "Standing Side Stretch": case "Standing Side Reach": return Math.abs(ls.y - rs.y) > 0.08;
+                case "Partial Forward Fold": return hY < sY + 0.2;
+                case "Standing Twist": case "Standing Hip Circles": case "Standing Arm Circles": case "Standing Tree Prep": case "Standing Heart Opener": case "Standing Meditation": case "Gentle Standing Sway": case "Standing Gratitude": return true;
+            } return false;
+        }
+        let vE = document.getElementsByClassName('in-v')[0], cE = document.getElementsByClassName('out-c')[0], cCtx = cE.getContext('2d');
+        const pObj = new Pose({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
+        pObj.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+        let stlT = 0;
+        pObj.onResults(r => {
+            if (!mdLd) { mdLd = true; document.getElementById('ldr').style.display = 'none'; }
+            if (r.poseLandmarks) {
+                pLMs = r.poseLandmarks; let sx = 0, sy = 0, c = 0;
+                for (let l of pLMs) { if (l.visibility > 0.5) { sx += l.x; sy += l.y; c++; } }
+                if (c > 0) coM = { x: sx / c, y: sy / c };
+                let dx = pLMs[15].x - (pLMs[16] ? pLMs[16].x : 0); smI = smI * 0.9 + Math.abs(dx) * 0.5;
+                if (smI < 0.05) stlT++; else stlT = 0;
+
+                if (sTm === -1 && !sCmp) { sTm = 0; ptc = []; lstPh = -1; }
+                let tP = PSS.find(p => sTm >= p.st && sTm < p.nd);
+                if (tP && tP.n !== fb.pn) { fb.pn = tP.n; fb.act = false; }
+                if (tP && !fb.act && cPM(tP.n, pLMs)) {
+                    fb.act = true; fb.glow = 1.0; qVb(100); pSfx('chime_success.mp3', 0.6);
+                    let phs = ["Perfect ✨", "Beautiful 🌟", "Breathe here"];
+                    let tst = document.getElementById('f-tst'); tst.innerText = phs[Math.floor(Math.random() * phs.length)];
+                    tst.classList.add('act'); setTimeout(() => { tst.classList.remove('act'); }, 2000);
+                }
+
+                if (aRdy && !pzd && !mMt) {
+                    if (smI > 0.3) { bHgh.volume = min(0.2, bHgh.volume + 0.01); bBse.volume = max(0.1, bBse.volume - 0.01); }
+                    else if (stlT > 60) { bHgh.volume = max(0.05, bHgh.volume - 0.01); bBse.volume = min(0.25, bBse.volume + 0.01); }
+                }
+            } else { pLMs = null; smI *= 0.9; stlT = 0; }
+            if (dbg) { cCtx.save(); cCtx.clearRect(0, 0, cE.width, cE.height); cCtx.drawImage(r.image, 0, 0, cE.width, cE.height); if (pLMs) { drawConnectors(cCtx, pLMs, POSE_CONNECTIONS, { color: '#FF10F0', lineWidth: 2 }); drawLandmarks(cCtx, pLMs, { color: '#FFB627', lineWidth: 1, radius: 2 }); } cCtx.restore(); }
+        });
+        let cam = null;
+        function initCamera() {
+            if (camStarted) return;
+            camStarted = true;
+            cam = new Camera(vE, { onFrame: async () => { await pObj.send({ image: vE }); }, width: 640, height: 480, facingMode: fCm });
+            cam.start();
+        }
+
+        // ---------- PHYSICS ----------
+        let ptPool = [], ptc = [], qM = 1.0, fpsH = [];
+        const GS = 100; let sG = new Map();
+        function gK(x, y) { return Math.floor(x / GS) + ',' + Math.floor(y / GS); }
+        function eOQ(x) { return 1 - (1 - x) * (1 - x); }
+        function eIOC(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+
+        let lstPh = -1, trT = 0, wA = false, wR = 0, wId = 1, bPls = 0;
+        let cB1, cB2, cBr, lstPH = PHS[0];
+
+        class Pt {
+            init(typ, x, y, lay, spdM = 1) {
+                this.t = typ; this.x = x; this.y = y; this.alv = true; this.age = 0;
+                this.zm = lay === 1 ? 0.5 : (lay === 2 ? 1.0 : 1.5); let bp = lay === 1 ? 0.5 : (lay === 2 ? 0.8 : 1.0);
+                let a = random(TWO_PI), s = random(0.3, 1.2) * spdM * this.zm; this.vx = cos(a) * s; this.vy = sin(a) * s;
+                if (typ === 0) { this.tc = color('#E0B0FF'); this.sz = random(3, 5) * this.zm; this.dc = random(0.3, 0.8); this.bo = bp * 0.8; }
+                else if (typ === 1) { this.tc = color(random(lstPH.c)); this.sz = random(6, 12) * this.zm; this.dc = random(0.5, 1.5); this.bo = bp; this.hs = []; this.wId = -1; this.clT = 0; }
+                else { this.tc = color(255); this.sz = random(2, 4) * this.zm; this.dc = random(0.4, 1.0); this.bo = 0.2 * bp; }
+                this.cl = this.tc; this.lf = 255; this.spk = random() < 0.1; this.shm = random() < 0.05;
+            }
+            upd(cx, cy, cP) {
+                this.age++; let n = noise(this.x * 0.005, this.y * 0.005, frameCount * 0.002); this.vx += cos(n * TWO_PI * 2) * 0.1 * this.zm; this.vy += sin(n * TWO_PI * 2) * 0.1 * this.zm;
+                let dx = this.x - cx, dy = this.y - cy, dSQ = dx * dx + dy * dy, d = Math.sqrt(dSQ) || 1;
+                
+                if (currentState === appStates.MODE_SELECTION) {
+                    let mdx = this.x - mouseX, mdy = this.y - mouseY, md = Math.sqrt(mdx*mdx + mdy*mdy) || 1;
+                    if (md < 300) { this.vx += (mdx/md) * 0.1 * this.zm; this.vy += (mdy/md) * 0.1 * this.zm; }
+                    if (ptModeHover > 0 && this.t === 1 && md < 250) {
+                        this.vx += (mdx/md) * 0.3 * this.zm; this.vy += (mdy/md) * 0.3 * this.zm;
+                        this.cl = lerpColor(this.cl, color(ptModeHover === 1 ? '#9B59D0' : '#FF5D8F'), 0.2);
+                        this.lf = min(255, this.lf + 5);
+                    }
+                } else if (currentState === appStates.SESSION_ACTIVE) {
+                    if (currentMode === MODES.A && this.t !== 0) { this.vy -= (smI * 0.8 * this.zm); }
+                    if (stlT > 60 && this.t !== 0) { let vp = map(min(stlT, 300), 60, 300, 0, 0.05); this.vx += (-dy / d) * vp * this.zm; this.vy += (dx / d) * vp * this.zm; this.vx += (-dx / d) * (vp * 0.5) * this.zm; this.vy += (-dy / d) * (vp * 0.5) * this.zm; }
+                    let smIMul = currentMode === MODES.A ? 0.4 : 1.0;
+                    if (smI > 0.4 && d < 200 && this.t !== 0) { this.vx += (dx / d) * smI * 2 * smIMul * this.zm; this.vy += (dy / d) * smI * 2 * smIMul * this.zm; }
+                    if (cP) { if (cP.n === "Seated Meditation") { this.vx -= dx * 0.001; this.vy -= dy * 0.001; } else if (cP.t.includes("LYING")) { this.vy += 0.05; } else if (cP.t.includes("UP")) { this.vy -= 0.05; } }
+                }
+
+                let cel = sG.get(gK(this.x, this.y));
+                if (cel) { for (let o of cel) { if (o === this) continue; let odx = this.x - o.x, ody = this.y - o.y, odSQ = odx * odx + ody * ody; if (odSQ < 400 && this.t !== 2) { let od = Math.sqrt(odSQ); this.vx += (odx / od) * 0.02; this.vy += (ody / od) * 0.02; } if (this.t === 2 && o.t === 2 && odSQ < 6400) { stroke(255, 255, 255, 50 * (this.lf / 255)); strokeWeight(1); line(this.x, this.y, o.x, o.y); } } }
+                if (this.t === 1 && frameCount % 2 === 0 && !isM) { this.hs.push({ x: this.x, y: this.y }); if (this.hs.length > 6) this.hs.shift(); } // no trails mobile
+
+                if (this.t === 1 && wA && this.wId !== wId) { if (d < wR) { this.wId = wId; this.tc = color(random(lstPH.c)); this.clT = 5.0; this.sCl = this.cl; } }
+                if (this.clT > 0) { this.clT -= 1 / 60; let amt = eOQ(constrain(1 - (this.clT / 5.0), 0, 1)); this.cl = lerpColor(this.sCl, this.tc, amt); }
+                if (fb.glow > 0) this.cl = lerpColor(this.cl, color(255, 255, 255), fb.glow * min(1, 0.2 + this.zm));
+                this.cl = lerpColor(this.cl, this.tc, 0.01);
+
+                this.vx *= 0.96; this.vy *= 0.96; this.x += this.vx; this.y += this.vy; this.lf -= this.dc;
+                if (this.lf <= 0) this.alv = false;
+            }
+            drw() {
+                let ro = (this.lf / 255); if (this.age < 20) ro *= (this.age / 20); if (this.lf < 30 * this.dc) ro *= (this.lf / (30 * this.dc));
+                let op = ro * this.bo; if (op <= 0) return;
+                let cS = 1.0; if (this.age < 20) cS = this.age / 20; if (this.lf < 30 * this.dc) cS = max(0.1, this.lf / (30 * this.dc));
+                let ds = this.sz * cS, c = this.cl, r_ = red(c), g_ = green(c), b_ = blue(c);
+                if (this.shm && random() < 0.05) op = min(1.0, op * 2.0);
+                if (this.spk && this.lf < 10) { r_ = 255; g_ = 255; b_ = 255; op = 1.0; ds *= 2; }
+                noStroke();
+                if (this.t === 1 && this.hs && this.hs.length > 0) { for (let i = 0; i < this.hs.length; i++) { let pt = this.hs[i], to = op * (i / this.hs.length) * 0.5; fill(r_, g_, b_, to * 255 * 0.3); circle(pt.x, pt.y, ds); } }
+                let o2 = op * 255;
+                if (!isM) { fill(r_, g_, b_, o2 * 0.1); circle(this.x, this.y, ds + 30); } // simplify glow mobile
+                fill(r_, g_, b_, o2 * 0.3); circle(this.x, this.y, ds + 10); fill(r_, g_, b_, o2); circle(this.x, this.y, ds); fill(255, 255, 255, o2 * 0.9); circle(this.x, this.y, ds * 0.3);
+            }
+        }
+        function gP(t, x, y, l, e) { let p = ptPool.pop() || new Pt(); p.init(t, x, y, l, e); return p; }
+
+        function setup() { let cvs = createCanvas(windowWidth, windowHeight); cvs.parent('p5-c'); pixelDensity(isM ? 0.75 : 1); frameRate(60); background('#000'); cB1 = color(PHS[0].b1); cB2 = color(PHS[0].b2); cBr = color(PHS[0].br); }
+
+        function draw() {
+            let nw = Date.now(), dt = (nw - lFt) / 1000; lFt = nw; bPls = (bPls + dt) % 15;
+            if (sTm >= 0 && !pzd && !sCmp) { sTm += dt; if (sTm >= MAX_T) { sCmp = true; sTm = -1; pSfx('bowl_end.mp3'); cWl(); } }
+
+            fpsH.push(frameRate()); if (fpsH.length > 30) fpsH.shift();
+            if (frameCount % 60 === 0) { let aF = fpsH.reduce((a, b) => a + b) / fpsH.length; if (aF < 25) qM = Math.max(0.3, qM - 0.1); else if (aF > 50) qM = Math.min(1.0, qM + 0.05); }
+
+            let ph = PHS.find(p => sTm < p.nd) || PHS[4]; let cP = PSS.find(p => sTm >= p.st && sTm < p.nd); let nP = PSS.find(p => sTm >= p.st - 3 && sTm < p.st + 5);
+            lstPH = ph;
+
+            if (ph.id !== lstPh) { lstPh = ph.id; trT = 5.0; if (sTm > 0) { wA = true; wR = 0; wId = ph.id; fb.glow = 1.4; pSfx('bell_transition.mp3', 0.6, 0, ph.rv); if (rGn) rGn.gain.linearRampToValueAtTime(ph.rv, actx.currentTime + 5.0); qVb([50, 50]); } }
+
+            let tB1 = ph.b1, tB2 = ph.b2, tBr = ph.br;
+            if (trT > 0) { trT -= dt; let amt = eIOC(constrain(1 - (trT / 5), 0, 1)); cB1 = lerpColor(color(PHS[max(0, ph.id - 2)].b1), color(tB1), amt); cB2 = lerpColor(color(PHS[max(0, ph.id - 2)].b2), color(tB2), amt); cBr = lerpColor(color(PHS[max(0, ph.id - 2)].br), color(tBr), amt); }
+            else { cB1 = lerpColor(cB1, color(tB1), 0.05); cB2 = lerpColor(cB2, color(tB2), 0.05); cBr = lerpColor(cBr, color(tBr), 0.05); }
+            if (wA) { wR += 1500 * dt; if (wR > max(width, height) * 2) wA = false; }
+
+            let cx = (1 - coM.x) * width, cy = coM.y * height; blendMode(BLEND);
+            let plv = sin((bPls / 15) * TWO_PI) * 0.1 + (smI * 0.2), gD = drawingContext.createRadialGradient(cx, cy, 0, cx, cy, width * (0.8 + plv));
+            gD.addColorStop(0, `rgba(${red(cB1)},${green(cB1)},${blue(cB1)},0.8)`); gD.addColorStop(1, `rgba(${red(cB2)},${green(cB2)},${blue(cB2)},1.0)`);
+            drawingContext.fillStyle = gD; noStroke(); rect(0, 0, width, height);
+
+            let vig = drawingContext.createRadialGradient(cx, cy, 0, cx, cy, width * 1.2);
+            vig.addColorStop(0, `rgba(0,0,0,0)`); vig.addColorStop(1, `rgba(${red(cB2) / 3},${green(cB2) / 3},${blue(cB2) / 3},0.8)`);
+            drawingContext.fillStyle = vig; noStroke(); rect(0, 0, width, height);
+
+            if (ph.id === 4) { stroke(255, 215, 0, 38); strokeWeight(1); noFill(); for (let i = 0; i < 6; i++) { let a = (i / 6) * TWO_PI + frameCount * 0.002; circle(cx + cos(a) * 150, cy + sin(a) * 150, 300); } }
+
+            sG.clear(); for (let p of ptc) { let k = gK(p.x, p.y); if (!sG.has(k)) sG.set(k, []); sG.get(k).push(p); }
+            blendMode(ADD); let aF = 0, aR = 0, aC = 0; for (let p of ptc) { if (p.t === 0) aF++; else if (p.t === 1) aR++; else aC++; }
+
+            if (aF < 250 * qM && frameCount % 2 === 0) ptc.push(gP(0, random(width), random(height), random() < 0.3 ? 1 : (random() < 0.8 ? 2 : 3)));
+            let mdThresh = currentMode === MODES.A ? 30 : 60;
+            if (currentState === appStates.SESSION_ACTIVE && aC < 60 * qM && stlT > mdThresh) ptc.push(gP(2, cx + random(-100, 100), cy + random(-100, 100), 2));
+
+            let tR = 100;
+            if (currentState === appStates.SESSION_ACTIVE && sTm >= 0 && !pzd) { tR = (cP && cP.n === "Savasana" ? 50 : (isM ? 400 : 800) * qM); }
+            if (currentState === appStates.SESSION_ACTIVE && pLMs && aR < tR && !pzd) {
+                if (smI > 0.4) { for (let i = 0; i < 5 * qM; i++)ptc.push(gP(1, cx, cy, random() < 0.3 ? 1 : (random() < 0.8 ? 2 : 3), random(0.8, 2.0))); }
+                else if (stlT > 300 && frameCount % 60 === 0) { let c_ = Math.floor(6 * qM); for (let i = 0; i < c_; i++) { let a = (i / c_) * TWO_PI, p = gP(1, cx + cos(a) * 50, cy + sin(a) * 50, 2, 0.5); p.vx = cos(a) * 1.5; p.vy = sin(a) * 1.5; ptc.push(p); } }
+                else if (frameCount % 2 === 0) { for (let i = 0; i < 2 * qM; i++)ptc.push(gP(1, cx + random(-30, 30), cy + random(-30, 30), random() < 0.3 ? 1 : (random() < 0.8 ? 2 : 3), random(0.5, 1.0))); }
+            }
+
+            if (fb.glow > 0) fb.glow -= 0.02;
+            for (let i = ptc.length - 1; i >= 0; i--) { let p = ptc[i]; p.upd(cx, cy, cP); p.drw(); if (!p.alv) { ptPool.push(p); ptc.splice(i, 1); } }
+
+            if (frameCount % 5 === 0) {
+                let brC = `rgba(${red(cBr)},${green(cBr)},${blue(cBr)}, 1.0)`, tpC = `rgba(${red(cBr)},${green(cBr)},${blue(cBr)}, 0.4)`;
+                document.querySelectorAll('.glm').forEach(el => el.style.borderColor = tpC);
+                let tR_ = (cP ? Math.ceil(cP.nd - sTm) : 0), nN = (cP ? cP.n : "Transition");
+                document.getElementById('u-pn').innerText = nN; document.getElementById('u-tr').innerText = `${fT(tR_)} rem`;
+                document.getElementById('u-phn').innerText = ph.nm; document.getElementById('u-pd').style.background = brC;
+                document.getElementById('u-pd').style.boxShadow = `0 0 10px ${brC}`; document.getElementById('i-bar').style.width = (smI * 100) + '%';
+                document.getElementById('i-bar').style.background = `linear-gradient(90deg, transparent, ${brC})`;
+                document.getElementById('u-pt').innerText = `P: ${ptc.length}`; document.getElementById('u-fps').innerText = `FPS: ${Math.round(frameRate())}`;
+                document.getElementById('s-pn').innerText = nN; document.getElementById('s-tm').innerText = `${fT(Math.max(0, sTm))} / ${currentMode === MODES.A ? '10:00' : '10:40'}`;
+                document.getElementById('tl-b').style.width = ((sTm / MAX_T) * 100) + '%'; document.getElementById('tl-b').style.background = brC;
+                if (dbg) { document.getElementById('db-p').innerText = nN; document.getElementById('db-i').innerText = smI.toFixed(2); document.getElementById('db-q').innerText = qM.toFixed(2); }
+                let rb = document.getElementById('b-ring'); rb.style.borderTopColor = brC; rb.style.borderBottomColor = brC; rb.style.boxShadow = `0 0 30px ${tpC} inset, 0 0 30px ${tpC}`;
+            }
+
+            let aT = null, aA = null; for (let g of GDS) { if (sTm >= g.t && sTm < g.t + 4.8) { aT = g.x; aA = g.a; break; } }
+            let ge = document.getElementById('g-overlay');
+            if (aT) { if (ge.innerText !== aT) { ge.innerText = aT; pVoc(aA); } ge.classList.add('act'); } else { ge.classList.remove('act'); }
+
+            let ce = document.getElementById('p-card');
+            if (nP) {
+                let pt = sTm - (nP.st - 3);
+                if (ce.innerText.indexOf(nP.n) === -1) { 
+                    document.getElementById('pc-tit').innerText = nP.n; 
+                    document.getElementById('pc-dsc').innerText = `Transitioning...`; 
+                    let ptStr = currentMode === MODES.A ? 'Stick Figure Image' : 'Detailed Illustration Image';
+                    document.querySelector('.pc-i').innerText = `${ptStr}\n(User added)\n${nP.n}`;
+                }
+                if (pt > 0 && pt < 7.8) ce.classList.add('act'); else ce.classList.remove('act');
+            } else { ce.classList.remove('act'); }
+
+            let br = document.getElementById('b-ring');
+            let isBrA = currentMode === MODES.A && sTm >= 0 && sTm < 600;
+            if (isBrA || (sTm >= 0 && sTm < 120) || (sTm >= 455 && sTm < 545) || (sTm >= 595 && sTm < 640)) {
+                br.style.display = 'flex'; let ct = (frameCount % 360) / 360, bp = sin(ct * TWO_PI - HALF_PI);
+                br.style.transform = `translate(-50%,-50%) scale(${map(bp, -1, 1, 0.7, 1.3)})`; br.style.opacity = map(bp, -1, 1, 0.4, 1.0);
+                document.getElementById('b-txt').innerText = ct < 0.5 ? "inhale" : "exhale";
+                if (ct < 0.02 && !br.inhlt) { pSfx('inhale.mp3', 0.06); br.inhlt = true; br.exhlt = false; }
+                if (ct > 0.5 && ct < 0.52 && !br.exhlt) { pSfx('exhale.mp3', 0.06); br.exhlt = true; br.inhlt = false; }
+            } else { br.style.display = 'none'; }
+    
+            if (currentState === appStates.SESSION_ACTIVE) {
+                drawPoseTimeline();
+            }
+        }
+        
+        function drawPoseTimeline() {
+            if (currentState !== appStates.SESSION_ACTIVE || sTm < 0) return;
+            
+            push()
+            
+            // BACKGROUND BAR (solid, opaque)
+            fill(10, 10, 10, 245) // Nearly opaque black
+            noStroke()
+            rect(0, height - 120, width, 120) // Make it 120px tall
+            
+            // TOP BORDER (bright coral for visibility)
+            stroke(255, 107, 157, 255) // Coral pink
+            strokeWeight(3) // Thicker for visibility
+            line(0, height - 120, width, height - 120)
+            
+            // PROGRESS LINE (top of bar, gradient)
+            let progress = sTm / MAX_T
+            let progressWidth = width * progress
+            
+            noStroke()
+            // Draw gradient progress bar
+            for (let i = 0; i < progressWidth; i++) {
+                let inter = map(i, 0, width, 0, 1)
+                let c = lerpColor(
+                    color(255, 0, 255),   // Magenta start
+                    color(255, 95, 31),   // Orange end
+                    inter
+                )
+                stroke(c)
+                strokeWeight(4) // Thicker progress line
+                line(i, height - 120, i, height - 116)
+            }
+            
+            // Get current pose
+            let current = PSS.find(pose => 
+                sTm >= pose.st && sTm < pose.nd
+            )
+            if (!current) { pop(); return; }
+            
+            let remaining = Math.max(0, Math.ceil(current.nd - sTm))
+            
+            // CURRENT POSE NAME (large, bold, magenta)
+            noStroke()
+            fill(255, 0, 255) // Bright magenta
+            textFont('Inter') // Make sure font is loaded
+            textStyle(BOLD)
+            textSize(32) // LARGER for projection readability
+            textAlign(LEFT, TOP)
+            text(current.n.toUpperCase(), 40, height - 105)
+            
+            // TIME REMAINING (below pose name)
+            textFont('Inter')
+            textStyle(NORMAL)
+            fill(200, 200, 200) // Light gray for contrast
+            textSize(18) // Larger
+            text(`${remaining}s remaining`, 40, height - 65)
+            
+            // SESSION TIME (top-right of bar)
+            fill(176, 176, 176)
+            textAlign(RIGHT, TOP)
+            textSize(16)
+            let minutes = Math.floor(sTm / 60)
+            let seconds = Math.floor(sTm % 60)
+            text(`${minutes}:${seconds.toString().padStart(2, '0')} / 10:00`, width - 40, height - 105)
+            
+            // UPCOMING POSES (right side, single line)
+            let currentIndex = PSS.findIndex(p => 
+                sTm >= p.st && sTm < p.nd
+            )
+            let upcoming = (currentIndex === -1) ? [] : PSS.slice(currentIndex + 1, currentIndex + 1 + 2) // Next 2 poses
+
+            if (upcoming.length > 0) {
+                fill(255, 0, 110, 200) // Fuchsia, brighter
+                textFont('Inter')
+                textStyle(NORMAL)
+                textSize(15) // Slightly larger
+                textAlign(LEFT, TOP)
+                
+                // Position on right half of bar
+                let xPos = width * 0.45
+                
+                text('NEXT:', xPos, height - 40)
+                xPos += 70
+                
+                // Show only next 2 poses to avoid cramping
+                upcoming.forEach((pose, i) => {
+                    let uMinutes = Math.floor(pose.st / 60)
+                    let uSeconds = Math.floor(pose.st % 60)
+                    let timestamp = `${uMinutes}:${uSeconds.toString().padStart(2, '0')}`
+                    
+                    // Simplified format: "Pose Name (time)"
+                    text(`${pose.n} (${timestamp})`, xPos, height - 40)
+                    xPos += 280 // More space between items
+                    
+                    if (i === 0 && upcoming.length > 1) {
+                        fill(255, 107, 157) // Coral for arrow
+                        text('→', xPos - 30, height - 40)
+                        fill(255, 0, 110, 200) // Back to fuchsia
+                    }
+                })
+            }
+            
+            pop()
+        }
+        windowResized = () => { resizeCanvas(windowWidth, windowHeight); background('#000'); }
+    </script>
+</body>
+</html>
