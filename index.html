@@ -4,7 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AURA>EGO - GUIDED SPATIAL WELLNESS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;900&family=Helvetica+Neue:wght@300;400;500;600;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        body, canvas {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
@@ -80,7 +92,8 @@
             top: 80px;
             left: 50%;
             transform: translateX(-50%) scale(0.95);
-            width: 600px;
+            width: auto;
+            max-width: 700px;
             min-height: 60px;
             z-index: 50;
             opacity: 0;
@@ -88,10 +101,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 15px 30px;
-            font-weight: 300;
-            font-size: 24px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            padding: 14px 36px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-weight: 400;
+            font-size: 22px;
+            color: #ffffff;
+            background: rgba(10, 10, 10, 0.75);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             text-align: center;
         }
 
@@ -116,6 +135,10 @@
             justify-content: space-between;
             padding: 30px;
             box-sizing: border-box;
+            background: rgba(12, 12, 12, 0.92);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 0, 255, 0.35);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
 
         #p-card.act {
@@ -124,47 +147,41 @@
         }
 
         .pc-t {
-            font-weight: 600;
-            font-size: 24px;
-            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 22px;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-align: center;
         }
 
         .pc-i {
             width: 300px;
             height: 300px;
-            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 14px;
-        }
-
-        .pc-d {
-            font-weight: 300;
-            font-size: 16px;
-            text-align: center;
-            opacity: 0.9;
-        }
-
-        #p-strip {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            z-index: 50;
-            border-bottom: none;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 0 40px;
-            box-sizing: border-box;
-            opacity: 0;
-            transition: opacity 1s;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .pc-d {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+
+        #p-strip {
+            display: none !important;
         }
 
         .s-i {
@@ -286,34 +303,84 @@
             }
         }
 
-        #c-hi {
+        /* ── SHARED PANEL CHROME ── */
+        .gl-panel {
             position: absolute;
-            bottom: 100px;
-            right: 30px;
             width: 220px;
-            padding: 15px;
-            z-index: 45;
-            font-size: 13px;
-            font-weight: 400;
-            opacity: 0.8;
-            pointer-events: none;
+            z-index: 55;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            pointer-events: auto;
+            transition: box-shadow 0.2s;
+        }
+        .gl-panel:hover {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .gl-panel-title {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            background: rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            user-select: none;
+        }
+        .gl-panel-title span {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            color: #ffffff;
+        }
+        .gl-panel-chevron {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            transition: transform 0.25s;
+            line-height: 1;
+        }
+        .gl-panel-chevron.open { transform: rotate(0deg); }
+        .gl-panel-chevron.closed { transform: rotate(-90deg); }
+
+        .gl-panel-body {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+        .gl-panel-body.open  { max-height: 300px; opacity: 1; }
+        .gl-panel-body.closed { max-height: 0;    opacity: 0; }
+
+        /* ── CONTROLS PANEL ── */
+        #c-hi {
+            bottom: 270px;
+            right: 30px;
         }
 
         .cr {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-family: monospace;
+            align-items: center;
+            margin-bottom: 7px;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.88);
         }
-
-        .cr:last-child {
-            margin-bottom: 0;
-        }
+        .cr:last-child { margin-bottom: 0; }
 
         .ky {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 2px 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 2px 7px;
             border-radius: 4px;
+            color: #fff;
         }
 
         #d-ov {
@@ -378,21 +445,29 @@
             letter-spacing: 2px;
         }
 
-        /* AUDIO CONTROLS */
+        /* ── AUDIO PANEL ── */
         #a-ctrl {
-            position: absolute;
-            bottom: 180px;
+            bottom: 140px;
             right: 30px;
-            width: 220px;
-            padding: 15px;
-            z-index: 55;
-            font-size: 12px;
         }
 
         .ac-sl {
             width: 100%;
-            margin: 10px 0;
+            margin: 8px 0;
+            accent-color: #FF00FF;
         }
+
+        #a-ctrl label {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        #a-ctrl label:last-of-type { margin-bottom: 0; }
 
         /* MOBILE RESPONSIVE */
         @media (max-width: 767px) {
@@ -448,8 +523,9 @@
             }
 
             #a-ctrl {
-                bottom: 100px;
+                bottom: 140px;
                 right: 15px;
+                width: 200px;
             }
 
             .dv-c {
@@ -916,25 +992,30 @@
     </div>
     <div id="b-ring" class="glm"><span id="b-txt">inhale</span></div>
     <div id="f-tst" class="glm">Perfect ✨</div>
-    <div id="c-hi" class="glm">
-        <div style="font-weight:600;margin-bottom:12px;">Controls</div>
-        <div class="cr"><span>Start/Pause</span><span class="ky">Space</span></div>
-        <div class="cr"><span>Restart</span><span class="ky">R</span></div>
-        <div class="cr"><span>Next Pose</span><span class="ky">N</span></div>
-        <div class="cr"><span>Debug Mode</span><span class="ky">D</span></div>
+    <div id="c-hi" class="gl-panel">
+        <div class="gl-panel-title" onclick="togglePanel('c-hi')">
+            <span>CONTROLS</span>
+            <span class="gl-panel-chevron open" id="c-hi-chev">▼</span>
+        </div>
+        <div class="gl-panel-body open" id="c-hi-body" style="padding:14px 15px;">
+            <div class="cr"><span>Start / Pause</span><span class="ky">Space</span></div>
+            <div class="cr"><span>Restart</span><span class="ky">R</span></div>
+            <div class="cr"><span>Next Pose</span><span class="ky">N</span></div>
+            <div class="cr"><span>Debug Mode</span><span class="ky">D</span></div>
+        </div>
     </div>
-    <div id="a-ctrl" class="glm">
-        <div style="font-weight:600;display:flex;justify-content:space-between;cursor:pointer;"
-            onclick="let p=document.getElementById('ac-opts');p.style.display=p.style.display==='none'?'block':'none'">
-            <span>Audio System</span><span>▲</span></div>
-        <div id="ac-opts" style="display:none;margin-top:10px;">
-            <label>Master Vol <input type="range" class="ac-sl" id="v-mst" min="0" max="1" step="0.05"
-                    value="1"></label>
-            <label><input type="checkbox" id="v-voi" checked> Voice Guidance</label><br><label><input type="checkbox"
-                    id="v-amb" checked> Ambient Layers</label>
+    <div id="a-ctrl" class="gl-panel">
+        <div class="gl-panel-title" onclick="togglePanel('a-ctrl')">
+            <span>AUDIO</span>
+            <span class="gl-panel-chevron closed" id="a-ctrl-chev">▼</span>
+        </div>
+        <div class="gl-panel-body closed" id="a-ctrl-body" style="padding:14px 15px;">
+            <label style="margin-bottom:4px;">Master Vol</label>
+            <input type="range" class="ac-sl" id="v-mst" min="0" max="1" step="0.05" value="1">
+            <label><input type="checkbox" id="v-voi" checked> Voice Guidance</label>
+            <label><input type="checkbox" id="v-amb" checked> Ambient Layers</label>
             <button id="v-mte"
-                style="margin-top:10px;width:100%;padding:5px;background:rgba(255,255,255,0.2);border:none;border-radius:4px;color:#fff;cursor:pointer;">Mute
-                All</button>
+                style="margin-top:10px;width:100%;padding:7px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">MUTE ALL</button>
         </div>
     </div>
     <div id="p-strip" class="glm">
@@ -1098,6 +1179,16 @@
 
 
         function fT(s) { let m = Math.floor(s / 60), sx = Math.floor(s % 60); return `${m}:${sx < 10 ? '0' : ''}${sx}`; }
+
+        function togglePanel(id) {
+            let body = document.getElementById(id + '-body');
+            let chev = document.getElementById(id + '-chev');
+            let open = body.classList.contains('open');
+            body.classList.toggle('open', !open);
+            body.classList.toggle('closed', open);
+            chev.classList.toggle('open', !open);
+            chev.classList.toggle('closed', open);
+        }
         // mkC initialized in selectMode
 
         // ---------- AUDIO API (MILESTONE 9) ----------
@@ -1139,7 +1230,7 @@
         document.getElementById('v-mst').oninput = e => { if (mGn) mGn.gain.value = e.target.value; }
         document.getElementById('v-voi').onchange = e => { vOn = e.target.checked; }
         document.getElementById('v-amb').onchange = e => { aOn = e.target.checked; if (aGn) aGn.gain.value = aOn ? 1 : 0; }
-        document.getElementById('v-mte').onclick = () => { mMt = !mMt; document.getElementById('v-mte').style.background = mMt ? '#F72585' : 'rgba(255,255,255,0.2)'; if (mGn) mGn.gain.value = mMt ? 0 : document.getElementById('v-mst').value; }
+        document.getElementById('v-mte').onclick = () => { mMt = !mMt; let btn = document.getElementById('v-mte'); btn.style.background = mMt ? 'rgba(180,20,50,0.7)' : 'rgba(255,255,255,0.12)'; btn.style.color = '#fff'; btn.textContent = mMt ? 'MUTED' : 'MUTE ALL'; if (mGn) mGn.gain.value = mMt ? 0 : document.getElementById('v-mst').value; }
 
         // ---------- MOBILE & HAPTICS (MILESTONE 10) ----------
         let isM = window.innerWidth <= 767;
@@ -1317,7 +1408,7 @@
         }
         function gP(t, x, y, l, e) { let p = ptPool.pop() || new Pt(); p.init(t, x, y, l, e); return p; }
 
-        function setup() { let cvs = createCanvas(windowWidth, windowHeight); cvs.parent('p5-c'); pixelDensity(isM ? 0.75 : 1); frameRate(60); background('#000'); cB1 = color(PHS[0].b1); cB2 = color(PHS[0].b2); cBr = color(PHS[0].br); }
+        function setup() { let cvs = createCanvas(windowWidth, windowHeight); cvs.parent('p5-c'); pixelDensity(isM ? 1 : 2); frameRate(60); background('#000'); cB1 = color(PHS[0].b1); cB2 = color(PHS[0].b2); cBr = color(PHS[0].br); }
 
         function draw() {
             let nw = Date.now(), dt = (nw - lFt) / 1000; lFt = nw; bPls = (bPls + dt) % 15;
@@ -1389,7 +1480,7 @@
                 let pt = sTm - (nP.st - 3);
                 if (ce.innerText.indexOf(nP.n) === -1) { 
                     document.getElementById('pc-tit').innerText = nP.n; 
-                    document.getElementById('pc-dsc').innerText = `Transitioning...`; 
+                    document.getElementById('pc-dsc').innerHTML = `<span style="color: #FFFFFF; font-weight: 600;">Transitioning...</span>`; 
                     let ptStr = currentMode === MODES.A ? 'Stick Figure Image' : 'Detailed Illustration Image';
                     document.querySelector('.pc-i').innerText = `${ptStr}\n(User added)\n${nP.n}`;
                 }
@@ -1413,107 +1504,103 @@
         
         function drawPoseTimeline() {
             if (currentState !== appStates.SESSION_ACTIVE || sTm < 0) return;
-            
-            push()
-            
-            // BACKGROUND BAR (solid, opaque)
-            fill(10, 10, 10, 245) // Nearly opaque black
-            noStroke()
-            rect(0, height - 120, width, 120) // Make it 120px tall
-            
-            // TOP BORDER (bright coral for visibility)
-            stroke(255, 107, 157, 255) // Coral pink
-            strokeWeight(3) // Thicker for visibility
-            line(0, height - 120, width, height - 120)
-            
-            // PROGRESS LINE (top of bar, gradient)
-            let progress = sTm / MAX_T
-            let progressWidth = width * progress
-            
-            noStroke()
-            // Draw gradient progress bar
-            for (let i = 0; i < progressWidth; i++) {
-                let inter = map(i, 0, width, 0, 1)
-                let c = lerpColor(
-                    color(255, 0, 255),   // Magenta start
-                    color(255, 95, 31),   // Orange end
-                    inter
-                )
-                stroke(c)
-                strokeWeight(4) // Thicker progress line
-                line(i, height - 120, i, height - 116)
-            }
-            
-            // Get current pose
-            let current = PSS.find(pose => 
-                sTm >= pose.st && sTm < pose.nd
-            )
-            if (!current) { pop(); return; }
-            
-            let remaining = Math.max(0, Math.ceil(current.nd - sTm))
-            
-            // CURRENT POSE NAME (large, bold, magenta)
-            noStroke()
-            fill(255, 0, 255) // Bright magenta
-            textFont('Inter') // Make sure font is loaded
-            textStyle(BOLD)
-            textSize(32) // LARGER for projection readability
-            textAlign(LEFT, TOP)
-            text(current.n.toUpperCase(), 40, height - 105)
-            
-            // TIME REMAINING (below pose name)
-            textFont('Inter')
-            textStyle(NORMAL)
-            fill(200, 200, 200) // Light gray for contrast
-            textSize(18) // Larger
-            text(`${remaining}s remaining`, 40, height - 65)
-            
-            // SESSION TIME (top-right of bar)
-            fill(176, 176, 176)
-            textAlign(RIGHT, TOP)
-            textSize(16)
-            let minutes = Math.floor(sTm / 60)
-            let seconds = Math.floor(sTm % 60)
-            text(`${minutes}:${seconds.toString().padStart(2, '0')} / 10:00`, width - 40, height - 105)
-            
-            // UPCOMING POSES (right side, single line)
-            let currentIndex = PSS.findIndex(p => 
-                sTm >= p.st && sTm < p.nd
-            )
-            let upcoming = (currentIndex === -1) ? [] : PSS.slice(currentIndex + 1, currentIndex + 1 + 2) // Next 2 poses
 
-            if (upcoming.length > 0) {
-                fill(255, 0, 110, 200) // Fuchsia, brighter
-                textFont('Inter')
-                textStyle(NORMAL)
-                textSize(15) // Slightly larger
-                textAlign(LEFT, TOP)
-                
-                // Position on right half of bar
-                let xPos = width * 0.45
-                
-                text('NEXT:', xPos, height - 40)
-                xPos += 70
-                
-                // Show only next 2 poses to avoid cramping
-                upcoming.forEach((pose, i) => {
-                    let uMinutes = Math.floor(pose.st / 60)
-                    let uSeconds = Math.floor(pose.st % 60)
-                    let timestamp = `${uMinutes}:${uSeconds.toString().padStart(2, '0')}`
-                    
-                    // Simplified format: "Pose Name (time)"
-                    text(`${pose.n} (${timestamp})`, xPos, height - 40)
-                    xPos += 280 // More space between items
-                    
-                    if (i === 0 && upcoming.length > 1) {
-                        fill(255, 107, 157) // Coral for arrow
-                        text('→', xPos - 30, height - 40)
-                        fill(255, 0, 110, 200) // Back to fuchsia
-                    }
-                })
+            const BAR_H = 120;
+            const BAR_Y = height - BAR_H;
+            const F = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+
+            push();
+
+            // --- BACKGROUND BAR ---
+            noStroke();
+            fill(10, 10, 10, 250);
+            rect(0, BAR_Y, width, BAR_H);
+
+            // --- TOP BORDER (coral pink, 2px) ---
+            stroke(255, 107, 157);
+            strokeWeight(2);
+            line(0, BAR_Y, width, BAR_Y);
+            noStroke();
+
+            // --- PROGRESS GRADIENT LINE (4px, just below border) ---
+            let progressWidth = constrain(width * (sTm / MAX_T), 0, width);
+            for (let i = 0; i < progressWidth; i++) {
+                stroke(lerpColor(color(255, 0, 255), color(255, 95, 31), i / width));
+                strokeWeight(4);
+                line(i, BAR_Y + 2, i, BAR_Y + 6);
             }
-            
-            pop()
+            noStroke();
+
+            // --- GET CURRENT POSE ---
+            let currentIndex = PSS.findIndex(p => sTm >= p.st && sTm < p.nd);
+            let current = PSS[currentIndex];
+            if (!current) { pop(); return; }
+
+            let remaining = Math.max(0, Math.ceil(current.nd - sTm));
+
+            // --- LEFT COL: POSE NAME (36px, bold, WHITE, all-caps) ---
+            textFont(F);
+            textStyle(BOLD);
+            textSize(36);
+            textAlign(LEFT, TOP);
+            fill(255, 255, 255);
+            text(current.n.toUpperCase(), 40, BAR_Y + 16);
+
+            // --- LEFT COL: TIME REMAINING (16px, white 65% opacity) ---
+            textStyle(NORMAL);
+            textSize(16);
+            fill(255, 255, 255, 165);
+            text(`${remaining}s remaining`, 40, BAR_Y + 62);
+
+            // --- RIGHT COL: SESSION TIMER (18px bold, white 80%) ---
+            let mins = Math.floor(sTm / 60);
+            let secs = Math.floor(sTm % 60);
+            let maxMins = Math.floor(MAX_T / 60);
+            let maxSecs = MAX_T % 60;
+            textStyle(BOLD);
+            textSize(18);
+            textAlign(RIGHT, TOP);
+            fill(255, 255, 255, 200);
+            text(
+                `${mins}:${secs.toString().padStart(2, '0')} / ${maxMins}:${maxSecs.toString().padStart(2, '0')}`,
+                width - 40, BAR_Y + 16
+            );
+
+            // --- NEXT POSES ROW (bottom of bar, 45% from left) ---
+            let upcoming = currentIndex === -1 ? [] : PSS.slice(currentIndex + 1, currentIndex + 3);
+            if (upcoming.length > 0) {
+                textStyle(BOLD);
+                textSize(13);
+                textAlign(LEFT, TOP);
+                const nextY = BAR_Y + 78;
+                let xPos = width * 0.45;
+
+                // "NEXT:" label in magenta
+                fill(255, 0, 255, 220);
+                text('NEXT:', xPos, nextY);
+                xPos += textWidth('NEXT:') + 10;
+
+                upcoming.forEach((pose, i) => {
+                    let uM = Math.floor(pose.st / 60);
+                    let uS = Math.floor(pose.st % 60);
+                    let label = `${pose.n.toUpperCase()} (${uM}:${uS.toString().padStart(2, '0')})`;
+
+                    // pose name in white 75%
+                    textStyle(NORMAL);
+                    fill(255, 255, 255, 190);
+                    text(label, xPos, nextY);
+                    xPos += textWidth(label);
+
+                    if (i === 0 && upcoming.length > 1) {
+                        // arrow in coral
+                        fill(255, 107, 157, 200);
+                        text('  →  ', xPos, nextY);
+                        xPos += textWidth('  →  ');
+                    }
+                });
+            }
+
+            pop();
         }
         windowResized = () => { resizeCanvas(windowWidth, windowHeight); background('#000'); }
     </script>
