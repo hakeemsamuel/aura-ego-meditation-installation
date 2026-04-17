@@ -824,12 +824,135 @@
             #mode-select-ui > div { flex-direction: column !important; }
             #meditation-card, #yoga-card { width: 280px !important; }
         }
+
+        /* ── AMBIENT PARTICLE CANVAS ── */
+        #amb-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2001; /* floats above all UI screens */
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        #amb-canvas.vis { opacity: 1; }
+
+        /* ── HOMEPAGE ENHANCEMENTS ── */
+        #homepage-ui {
+            background: radial-gradient(ellipse at 50% 45%, rgba(25, 8, 28, 1) 0%, rgba(12, 5, 15, 1) 45%, rgba(8, 8, 10, 1) 100%) !important;
+        }
+        .hp-aura {
+            animation: titleBreathe 8s ease-in-out infinite;
+        }
+        @keyframes titleBreathe {
+            0%, 100% { letter-spacing: 0.02em; }
+            50%       { letter-spacing: 0.06em; }
+        }
+        .hp-tag {
+            animation: subtlePulse 6s ease-in-out infinite;
+        }
+        @keyframes subtlePulse {
+            0%, 100% { opacity: 0.65; }
+            50%       { opacity: 0.9; }
+        }
+        .hp-circle {
+            width: 260px; height: 260px;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.55) 0%, rgba(180, 0, 255, 0.15) 50%, transparent 72%);
+            filter: blur(18px);
+            opacity: 0.18;
+            animation: breathe 6s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.18; }
+            50%       { transform: translate(-50%, -50%) scale(1.55); opacity: 0.3;  }
+        }
+
+        /* ── MODE SELECTION ENHANCEMENTS ── */
+        #mode-select-ui {
+            background: radial-gradient(ellipse at 50% 45%, rgba(22, 8, 26, 1) 0%, rgba(10, 6, 12, 1) 50%, rgba(8, 8, 10, 1) 100%) !important;
+        }
+        .ms-title { letter-spacing: 0.12em; text-transform: uppercase; }
+
+        /* Card accent underline */
+        .mc-accent {
+            width: 56px; height: 2px;
+            margin: 0 auto 18px;
+            border-radius: 2px;
+        }
+        .mdt .mc-accent { background: #FF00FF; box-shadow: 0 0 8px rgba(255,0,255,0.6); }
+        .yga .mc-accent { background: #FF5F1F; box-shadow: 0 0 8px rgba(255,95,31,0.6); }
+
+        /* Card hover: scale + colour-matched glow */
+        .ms-card.mdt:hover {
+            border-color: rgba(255, 0, 255, 0.6) !important;
+            box-shadow: 0 0 0 1px rgba(255,0,255,0.2), 0 12px 48px rgba(255,0,255,0.25) !important;
+            transform: scale(1.025) translateY(-4px) !important;
+            background: rgba(255,255,255,0.13) !important;
+        }
+        .ms-card.yga:hover {
+            border-color: rgba(255, 95, 31, 0.6) !important;
+            box-shadow: 0 0 0 1px rgba(255,95,31,0.2), 0 12px 48px rgba(255,95,31,0.25) !important;
+            transform: scale(1.025) translateY(-4px) !important;
+            background: rgba(255,255,255,0.13) !important;
+        }
+
+        /* CTA buttons */
+        .mc-btn {
+            width: 100%;
+            margin-top: auto;
+            padding: 13px 20px;
+            background: none;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mc-btn .btn-arrow {
+            display: inline-block;
+            transition: transform 0.3s ease, letter-spacing 0.3s ease;
+        }
+        .mc-btn:hover .btn-arrow {
+            transform: translateX(5px);
+        }
+        .mdt .mc-btn {
+            border: 1px solid rgba(255, 0, 255, 0.6);
+            color: #FF00FF;
+        }
+        .mdt .mc-btn:hover {
+            background: rgba(255, 0, 255, 0.12);
+            border-color: #FF00FF;
+            box-shadow: 0 0 18px rgba(255, 0, 255, 0.3);
+        }
+        .yga .mc-btn {
+            border: 1px solid rgba(255, 95, 31, 0.6);
+            color: #FF5F1F;
+        }
+        .yga .mc-btn:hover {
+            background: rgba(255, 95, 31, 0.12);
+            border-color: #FF5F1F;
+            box-shadow: 0 0 18px rgba(255, 95, 31, 0.3);
+        }
+
+        /* Old inline-styled card selectors (keep hover for both id targets) */
+        #meditation-card:hover, #yoga-card:hover { transform: none !important; box-shadow: none !important; }
     </style>
 </head>
 
 <body>
     <div id="ort-prompt">Rotate device for best experience</div>
     <div id="ldr">✨ Illuminating Space...</div>
+
+    <canvas id="amb-canvas"></canvas>
 
     <div id="homepage-ui">
         <div class="hp-title-container">
@@ -843,132 +966,61 @@
         <div class="hp-inst">Press Space or click above to begin</div>
     </div>
 
-    <div id="mode-select-ui" style="
-        background: #0A0A0A;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Inter', sans-serif;
-    ">
-        <h1 style="
-            font-size: 64px;
+    <div id="mode-select-ui">
+        <h1 class="ms-title" style="
+            font-size: 56px;
             font-weight: 700;
             background: linear-gradient(135deg, #FF00FF 0%, #FF006E 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            letter-spacing: 3px;
-        ">AURA>EGO</h1>
-        
-        <p style="
-            font-size: 18px;
-            color: #FF6B9D;
-            opacity: 0.7;
-            margin-bottom: 80px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        ">Guided Spatial Wellness</p>
-        
-        <div style="display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; max-width: 800px;">
-            <div id="meditation-card" onclick="selectMode('MEDITATION_STRETCH')" style="
-                width: 320px;
-                padding: 30px;
-                background: rgba(10, 10, 10, 0.8);
-                border: 2px solid #FF00FF;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            ">
-                <h2 style="
-                    font-size: 22px;
-                    font-weight: 700;
-                    color: #FF00FF;
-                    margin-bottom: 10px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                ">Meditation & Stretch</h2>
-                
-                <p style="font-size: 12px; color: #FF6B9D; margin-bottom: 20px; text-transform: uppercase;">10 Minutes</p>
-                <p style="font-family: 'Outfit', sans-serif; font-size: 14px; color: #E0E0E0; line-height: 1.6; margin-bottom: 20px;">Gentle upright stretches and mindfulness. Stay standing throughout. Perfect for all comfort levels.</p>
-                
-                <ul style="font-family: 'Outfit', sans-serif; font-size: 13px; color: #B0B0B0; list-style: none; padding: 0;">
-                    <li>• Standing poses only</li>
-                    <li>• Meditative guidance</li>
-                    <li>• Breathing focus</li>
-                    <li>• Gentle movement</li>
+            margin-bottom: 8px;
+            animation: titleBreathe 8s ease-in-out infinite;
+        ">AURA&gt;EGO</h1>
+
+        <p class="ms-sub" style="animation: subtlePulse 6s ease-in-out infinite;">
+            Guided Spatial Wellness
+        </p>
+
+        <div class="ms-cards">
+            <!-- MEDITATION CARD -->
+            <div id="meditation-card" class="ms-card mdt" onclick="selectMode('MEDITATION_STRETCH')">
+                <div class="mc-icon-area">🧘</div>
+                <div class="mc-title">Meditation &amp; Stretch</div>
+                <div class="mc-accent"></div>
+                <span class="mc-dur">10 Minutes</span>
+                <p class="mc-desc">Gentle upright stretches and mindfulness. Stay standing throughout. Perfect for all comfort levels.</p>
+                <ul class="mc-feats">
+                    <li>Standing poses only</li>
+                    <li>Meditative guidance</li>
+                    <li>Breathing focus</li>
+                    <li>Gentle movement</li>
                 </ul>
-                
-                <button style="
-                    width: 100%;
-                    margin-top: 20px;
-                    padding: 12px;
-                    background: none;
-                    border: 1px solid #FF00FF;
-                    color: #FF00FF;
-                    font-family: 'Inter', sans-serif;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    transition: all 0.3s ease;
-                ">Begin Meditation</button>
+                <button class="mc-btn" onclick="event.stopPropagation(); selectMode('MEDITATION_STRETCH')">
+                    Begin Meditation <span class="btn-arrow">→</span>
+                </button>
             </div>
-            
-            <div id="yoga-card" onclick="selectMode('GUIDED_YOGA')" style="
-                width: 320px;
-                padding: 30px;
-                background: rgba(10, 10, 10, 0.8);
-                border: 2px solid #FF5F1F;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            ">
-                <h2 style="
-                    font-size: 22px;
-                    font-weight: 700;
-                    color: #FF5F1F;
-                    margin-bottom: 10px;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                ">Guided Yoga Flow</h2>
-                
-                <p style="font-size: 12px; color: #FF6B9D; margin-bottom: 20px; text-transform: uppercase;">10 Minutes</p>
-                <p style="font-family: 'Outfit', sans-serif; font-size: 14px; color: #E0E0E0; line-height: 1.6; margin-bottom: 20px;">Complete yoga sequence with floor poses. For those comfortable with yoga practice. Full body engagement.</p>
-                
-                <ul style="font-family: 'Outfit', sans-serif; font-size: 13px; color: #B0B0B0; list-style: none; padding: 0;">
-                    <li>• Full yoga sequence</li>
-                    <li>• Floor poses included</li>
-                    <li>• Alignment cues</li>
-                    <li>• Dynamic movement</li>
+
+            <!-- YOGA CARD -->
+            <div id="yoga-card" class="ms-card yga" onclick="selectMode('GUIDED_YOGA')">
+                <div class="mc-icon-area">🌊</div>
+                <div class="mc-title">Guided Yoga Flow</div>
+                <div class="mc-accent"></div>
+                <span class="mc-dur">10 Minutes</span>
+                <p class="mc-desc">Complete yoga sequence with floor poses. For those comfortable with yoga practice. Full body engagement.</p>
+                <ul class="mc-feats">
+                    <li>Full yoga sequence</li>
+                    <li>Floor poses included</li>
+                    <li>Alignment cues</li>
+                    <li>Dynamic movement</li>
                 </ul>
-                
-                <button style="
-                    width: 100%;
-                    margin-top: 20px;
-                    padding: 12px;
-                    background: none;
-                    border: 1px solid #FF5F1F;
-                    color: #FF5F1F;
-                    font-family: 'Inter', sans-serif;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    transition: all 0.3s ease;
-                ">Begin Yoga</button>
+                <button class="mc-btn" onclick="event.stopPropagation(); selectMode('GUIDED_YOGA')">
+                    Begin Yoga <span class="btn-arrow">→</span>
+                </button>
             </div>
         </div>
-        
-        <p style="
-            position: absolute;
-            bottom: 40px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 11px;
-            color: #B0B0B0;
-            opacity: 0.5;
-        ">Press 'M' anytime to return to this menu</p>
+
+        <p class="ms-bot">Press M anytime to return to this menu</p>
     </div>
 
     <div id="ui-pane" class="glm">
@@ -987,7 +1039,7 @@
     <div id="g-overlay" class="glm">Welcome. Find your ground.</div>
     <div id="p-card" class="glm">
         <div class="pc-t" id="pc-tit">Mountain Pose</div>
-        <div class="pc-i">Image 300×300px</div>
+        <div class="pc-i"><img id="pc-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 0.6s ease;"></div>
         <div class="pc-d" id="pc-dsc">Stand tall.</div>
     </div>
     <div id="b-ring" class="glm"><span id="b-txt">inhale</span></div>
@@ -1067,29 +1119,36 @@
         let PHS = PHS_B;
 
         const PSS_A = [
-            { n: "Mountain Pose", st: 5, nd: 35, ph: 1, t: "STANDING" },
-            { n: "Standing Arm Raises", st: 35, nd: 65, ph: 1, t: "STANDING_UP" },
-            { n: "Standing Side Stretch", st: 65, nd: 95, ph: 1, t: "STANDING" },
-            { n: "Partial Forward Fold", st: 95, nd: 125, ph: 1, t: "STANDING_P_FOLD" },
-            { n: "Standing Twist", st: 125, nd: 170, ph: 2, t: "STANDING" },
-            { n: "Standing Hip Circles", st: 170, nd: 215, ph: 2, t: "STANDING" },
-            { n: "Standing Arm Circles", st: 215, nd: 260, ph: 2, t: "STANDING" },
-            { n: "Standing Tree Prep", st: 260, nd: 305, ph: 2, t: "STANDING" },
-            { n: "Standing Chest Opener", st: 305, nd: 350, ph: 3, t: "STANDING_WIDE" },
-            { n: "Standing Side Reach", st: 350, nd: 395, ph: 3, t: "STANDING_REACH" },
-            { n: "Standing Heart Opener", st: 395, nd: 425, ph: 3, t: "STANDING" },
-            { n: "Standing Meditation", st: 425, nd: 515, ph: 4, t: "STANDING_MED" },
-            { n: "Gentle Standing Sway", st: 515, nd: 545, ph: 5, t: "STANDING" },
-            { n: "Standing Gratitude", st: 545, nd: 585, ph: 5, t: "STANDING_MED" }
+            { n: "Mountain Pose",       st: 5,   nd: 35,  ph: 1, t: "STANDING",       img: "images/meditation/transparent/mountain-pose.png" },
+            { n: "Standing Arm Raises", st: 35,  nd: 65,  ph: 1, t: "STANDING_UP",    img: "images/meditation/transparent/standing-arm-circles.png" },
+            { n: "Standing Side Stretch",st: 65, nd: 95,  ph: 1, t: "STANDING",       img: "images/meditation/transparent/standing-stretch.png" },
+            { n: "Partial Forward Fold",st: 95,  nd: 125, ph: 1, t: "STANDING_P_FOLD",img: "images/meditation/transparent/standing-forward-fold.png" },
+            { n: "Standing Twist",      st: 125, nd: 170, ph: 2, t: "STANDING",       img: "images/meditation/transparent/standing-twist.png" },
+            { n: "Standing Hip Circles",st: 170, nd: 215, ph: 2, t: "STANDING",       img: "images/meditation/transparent/standing-hip-circles.png" },
+            { n: "Standing Arm Circles",st: 215, nd: 260, ph: 2, t: "STANDING",       img: "images/meditation/transparent/standing-arm-circles.png" },
+            { n: "Standing Tree Prep",  st: 260, nd: 305, ph: 2, t: "STANDING",       img: "images/meditation/transparent/standing-balance-prep.png" },
+            { n: "Standing Chest Opener",st: 305,nd: 350, ph: 3, t: "STANDING_WIDE",  img: "images/meditation/transparent/chest-opener.png" },
+            { n: "Standing Side Reach", st: 350, nd: 395, ph: 3, t: "STANDING_REACH", img: "images/meditation/transparent/standing-side-reach.png" },
+            { n: "Standing Heart Opener",st: 395,nd: 425, ph: 3, t: "STANDING",       img: "images/meditation/transparent/standing-heart-opener.png" },
+            { n: "Standing Meditation", st: 425, nd: 515, ph: 4, t: "STANDING_MED",   img: "images/meditation/transparent/EUes3UNdwNv46J4TvHrq8_cfn0hJg4.png" },
+            { n: "Gentle Standing Sway",st: 515, nd: 545, ph: 5, t: "STANDING",       img: "images/meditation/transparent/gentle-standing-sway.png" },
+            { n: "Standing Gratitude",  st: 545, nd: 585, ph: 5, t: "STANDING_MED",   img: "images/meditation/transparent/gratitude-moment.png" }
         ];
         const PSS_B = [
-            { n: "Mountain Pose", st: 5, nd: 35, ph: 1, t: "STANDING" }, { n: "Raised Hands", st: 35, nd: 65, ph: 1, t: "STANDING_UP" },
-            { n: "Side Stretch", st: 65, nd: 95, ph: 1, t: "STANDING" }, { n: "Forward Fold", st: 95, nd: 125, ph: 1, t: "STANDING_FOLD" },
-            { n: "Cat-Cow", st: 125, nd: 185, ph: 2, t: "FLOOR" }, { n: "Downward Dog", st: 190, nd: 235, ph: 2, t: "FLOOR_INV" },
-            { n: "Child's Pose", st: 240, nd: 285, ph: 2, t: "FLOOR_R" }, { n: "Seated Twist", st: 290, nd: 320, ph: 2, t: "SEATED" },
-            { n: "Warrior I", st: 325, nd: 370, ph: 3, t: "STANDING_A_U" }, { n: "Warrior II", st: 375, nd: 420, ph: 3, t: "STANDING_A_S" },
-            { n: "Triangle", st: 425, nd: 455, ph: 3, t: "STANDING" }, { n: "Seated Meditation", st: 455, nd: 545, ph: 4, t: "SEATED_MED" },
-            { n: "Supine Twist", st: 545, nd: 590, ph: 5, t: "LYING" }, { n: "Savasana", st: 595, nd: 640, ph: 5, t: "LYING_R" }
+            { n: "Mountain Pose",     st: 5,   nd: 35,  ph: 1, t: "STANDING",     img: "images/yoga/transparent/mountain-pose-yoga.png" },
+            { n: "Raised Hands",      st: 35,  nd: 65,  ph: 1, t: "STANDING_UP",  img: "images/yoga/transparent/raised-arm-raises.png" },
+            { n: "Side Stretch",      st: 65,  nd: 95,  ph: 1, t: "STANDING",     img: "images/yoga/transparent/standing-side-stretch.png" },
+            { n: "Forward Fold",      st: 95,  nd: 125, ph: 1, t: "STANDING_FOLD",img: "images/yoga/transparent/forward-fold.png" },
+            { n: "Cat-Cow",           st: 125, nd: 185, ph: 2, t: "FLOOR",        img: "images/yoga/transparent/cat-cow-pose.png" },
+            { n: "Downward Dog",      st: 190, nd: 235, ph: 2, t: "FLOOR_INV",    img: null },
+            { n: "Child's Pose",      st: 240, nd: 285, ph: 2, t: "FLOOR_R",      img: "images/yoga/transparent/child-pose.png" },
+            { n: "Seated Twist",      st: 290, nd: 320, ph: 2, t: "SEATED",       img: "images/yoga/transparent/seated-twist.png" },
+            { n: "Warrior I",         st: 325, nd: 370, ph: 3, t: "STANDING_A_U", img: "images/yoga/transparent/warrior_I_pose.png" },
+            { n: "Warrior II",        st: 375, nd: 420, ph: 3, t: "STANDING_A_S", img: "images/yoga/transparent/warrior_II_pose.png" },
+            { n: "Triangle",          st: 425, nd: 455, ph: 3, t: "STANDING",     img: "images/yoga/transparent/triangle-pose.png" },
+            { n: "Seated Meditation", st: 455, nd: 545, ph: 4, t: "SEATED_MED",   img: "images/yoga/transparent/seated-meditation-pose.png" },
+            { n: "Supine Twist",      st: 545, nd: 590, ph: 5, t: "LYING",        img: "images/yoga/transparent/supine-twist.png" },
+            { n: "Savasana",          st: 595, nd: 640, ph: 5, t: "LYING_R",      img: "images/yoga/transparent/savasana-pose.png" }
         ];
         let PSS = PSS_B;
 
@@ -1115,7 +1174,8 @@
                 ms.style.opacity = '0';
                 setTimeout(() => { ms.style.display = 'none'; ms.style.pointerEvents = 'auto'; }, 1000);
                 if(document.getElementById('ldr')) document.getElementById('ldr').style.display = 'none';
-            } 
+                if(window.ambParticles) window.ambParticles.start();
+            }
             else if (newState === appStates.MODE_SELECTION) {
                 sTm = -1; currentMode = null; ptc = []; sCmp = false; pzd = false; cWl();
                 up.style.opacity = '0'; ps.style.opacity = '0';
@@ -1123,8 +1183,10 @@
                 setTimeout(() => { hp.style.display = 'none'; }, 1000);
                 ms.style.display = 'flex';
                 setTimeout(() => { ms.style.opacity = '1'; ms.style.pointerEvents = 'auto'; if(!camStarted){initCamera();} initAu(); }, 50);
+                if(window.ambParticles) window.ambParticles.start();
             }
             else if (newState === appStates.SESSION_ACTIVE) {
+                if(window.ambParticles) window.ambParticles.stop();
                 hp.style.opacity = '0';
                 ms.style.opacity = '0';
                 ms.style.pointerEvents = 'none';
@@ -1179,6 +1241,87 @@
 
 
         function fT(s) { let m = Math.floor(s / 60), sx = Math.floor(s % 60); return `${m}:${sx < 10 ? '0' : ''}${sx}`; }
+
+        // ── AMBIENT PARTICLE SYSTEM (landing + mode selection) ──────────────
+        (function() {
+            const cvs = document.getElementById('amb-canvas');
+            const ctx = cvs.getContext('2d');
+            const COLORS = ['255,0,255', '220,0,200', '255,0,110', '200,50,255'];
+            const COUNT = 90;
+            let W, H, pts = [], raf = null, active = false;
+
+            function resize() {
+                W = cvs.width  = window.innerWidth;
+                H = cvs.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // Smooth pseudo-noise: sum of slow sine waves per particle
+            function mkPt() {
+                return {
+                    x:  Math.random() * W,
+                    y:  Math.random() * H,
+                    r:  1.5 + Math.random() * 3.5,
+                    op: 0.18 + Math.random() * 0.32,
+                    col: COLORS[Math.floor(Math.random() * COLORS.length)],
+                    // drift params
+                    ax: Math.random() * Math.PI * 2,
+                    ay: Math.random() * Math.PI * 2,
+                    fx: 0.00015 + Math.random() * 0.0002,
+                    fy: 0.00012 + Math.random() * 0.0002,
+                    amp: 18 + Math.random() * 60,
+                    t:  Math.random() * 1000,
+                };
+            }
+
+            function init() {
+                pts = [];
+                for (let i = 0; i < COUNT; i++) pts.push(mkPt());
+            }
+
+            function tick(ts) {
+                if (!active) return;
+                ctx.clearRect(0, 0, W, H);
+                for (let p of pts) {
+                    p.t += 0.35;
+                    let nx = p.x + Math.sin(p.ax + p.t * p.fx * 1000) * 0.25;
+                    let ny = p.y + Math.cos(p.ay + p.t * p.fy * 1000) * 0.18;
+                    // wrap
+                    if (nx < -10) nx = W + 8;
+                    if (nx > W + 10) nx = -8;
+                    if (ny < -10) ny = H + 8;
+                    if (ny > H + 10) ny = -8;
+                    p.x = nx; p.y = ny;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${p.col},${p.op})`;
+                    ctx.fill();
+                }
+                raf = requestAnimationFrame(tick);
+            }
+
+            function start() {
+                if (active) return;
+                active = true;
+                resize();
+                init();
+                cvs.classList.add('vis');
+                raf = requestAnimationFrame(tick);
+            }
+
+            function stop() {
+                active = false;
+                cvs.classList.remove('vis');
+                if (raf) { cancelAnimationFrame(raf); raf = null; }
+                ctx.clearRect(0, 0, W, H);
+            }
+
+            // expose so changeState can toggle
+            window.ambParticles = { start, stop };
+        })();
+        // ────────────────────────────────────────────────────────────────────
 
         function togglePanel(id) {
             let body = document.getElementById(id + '-body');
@@ -1408,6 +1551,23 @@
         }
         function gP(t, x, y, l, e) { let p = ptPool.pop() || new Pt(); p.init(t, x, y, l, e); return p; }
 
+        // ── POSE IMAGES ─────────────────────────────────────────────────────────
+        const pImgs = {};   // keyed by img path; shared across both sequences
+        let pImgOpacity = 0;
+        let pImgLastPose = null;
+
+        function preload() {
+            const allPaths = [
+                ...PSS_A.map(p => p.img),
+                ...PSS_B.map(p => p.img),
+            ].filter(Boolean); // drop nulls (Downward Dog)
+            const unique = [...new Set(allPaths)];
+            for (const path of unique) {
+                pImgs[path] = loadImage(path);
+            }
+        }
+        // ────────────────────────────────────────────────────────────────────
+
         function setup() { let cvs = createCanvas(windowWidth, windowHeight); cvs.parent('p5-c'); pixelDensity(isM ? 1 : 2); frameRate(60); background('#000'); cB1 = color(PHS[0].b1); cB2 = color(PHS[0].b2); cBr = color(PHS[0].br); }
 
         function draw() {
@@ -1478,11 +1638,20 @@
             let ce = document.getElementById('p-card');
             if (nP) {
                 let pt = sTm - (nP.st - 3);
-                if (ce.innerText.indexOf(nP.n) === -1) { 
-                    document.getElementById('pc-tit').innerText = nP.n; 
-                    document.getElementById('pc-dsc').innerHTML = `<span style="color: #FFFFFF; font-weight: 600;">Transitioning...</span>`; 
-                    let ptStr = currentMode === MODES.A ? 'Stick Figure Image' : 'Detailed Illustration Image';
-                    document.querySelector('.pc-i').innerText = `${ptStr}\n(User added)\n${nP.n}`;
+                if (ce.innerText.indexOf(nP.n) === -1) {
+                    document.getElementById('pc-tit').innerText = nP.n;
+                    document.getElementById('pc-dsc').innerHTML = `<span style="color:#FF6B9D;font-weight:600;letter-spacing:0.06em;">TRANSITIONING</span>`;
+                    let pcImg = document.getElementById('pc-img');
+                    if (nP.img) {
+                        pcImg.src = nP.img;
+                        pcImg.style.opacity = '0';
+                        pcImg.onload = () => { pcImg.style.opacity = '1'; };
+                        // If already cached the onload won't fire — force it
+                        if (pcImg.complete) pcImg.style.opacity = '1';
+                    } else {
+                        pcImg.src = '';
+                        pcImg.style.opacity = '0';
+                    }
                 }
                 if (pt > 0 && pt < 7.8) ce.classList.add('act'); else ce.classList.remove('act');
             } else { ce.classList.remove('act'); }
@@ -1498,10 +1667,45 @@
             } else { br.style.display = 'none'; }
     
             if (currentState === appStates.SESSION_ACTIVE) {
+                drawPoseImage();
                 drawPoseTimeline();
             }
         }
         
+        function drawPoseImage() {
+            if (currentState !== appStates.SESSION_ACTIVE || sTm < 0) return;
+            let cP = PSS.find(p => sTm >= p.st && sTm < p.nd);
+            if (!cP || !cP.img) { pImgOpacity = 0; pImgLastPose = null; return; }
+
+            // Reset + fade in on pose change
+            if (pImgLastPose !== cP) {
+                pImgOpacity = 0;
+                pImgLastPose = cP;
+            }
+
+            let img = pImgs[cP.img];
+            if (!img) return;
+
+            // Fade in at 3/frame → ~1s to reach 180
+            if (pImgOpacity < 180) pImgOpacity = min(180, pImgOpacity + 3);
+
+            // Fade out in the last 2s of the pose
+            let remaining = cP.nd - sTm;
+            let displayOpacity = pImgOpacity;
+            if (remaining < 2) {
+                displayOpacity = pImgOpacity * (remaining / 2);
+            }
+
+            push();
+            tint(255, 255, 255, displayOpacity);
+            imageMode(CORNER);
+            const IMG_W = 280, IMG_H = 280;
+            const IMG_X = 60;
+            const IMG_Y = height / 2 - IMG_H / 2 - 60; // offset up slightly from centre
+            image(img, IMG_X, IMG_Y, IMG_W, IMG_H);
+            pop();
+        }
+
         function drawPoseTimeline() {
             if (currentState !== appStates.SESSION_ACTIVE || sTm < 0) return;
 
@@ -1603,6 +1807,11 @@
             pop();
         }
         windowResized = () => { resizeCanvas(windowWidth, windowHeight); background('#000'); }
+
+        // Start ambient particles immediately on homepage
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.ambParticles) window.ambParticles.start();
+        });
     </script>
 </body>
 </html>
