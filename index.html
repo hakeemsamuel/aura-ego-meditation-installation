@@ -17,6 +17,22 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
     </style>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBpETYbg7Z0mV3425hsWjMBTSpXqtNLge4",
+            authDomain: "aura-immersive.firebaseapp.com",
+            projectId: "aura-immersive",
+            storageBucket: "aura-immersive.firebasestorage.app",
+            messagingSenderId: "125999151967",
+            appId: "1:125999151967:web:a08e3b7ff2448acbe554ea"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
@@ -106,7 +122,7 @@
             font-weight: 400;
             font-size: 22px;
             color: #ffffff;
-            background: rgba(10, 10, 10, 0.75);
+            background: rgba(10, 10, 10, 0.50);
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(12px);
@@ -135,7 +151,7 @@
             justify-content: space-between;
             padding: 30px;
             box-sizing: border-box;
-            background: rgba(12, 12, 12, 0.92);
+            background: rgba(12, 12, 12, 0.55);
             border-radius: 16px;
             border: 1px solid rgba(255, 0, 255, 0.35);
             transition: opacity 0.6s ease, transform 0.6s ease;
@@ -423,6 +439,30 @@
             border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
             padding-bottom: 4px;
         }
+
+        #body-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;          /* segmentation silhouette — above p5 (1), below skeleton (3) */
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;          /* neon skeleton joints/lines — above body silhouette (2) */
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        #three-canvas.vis { opacity: 1; }
 
         #p5-c {
             position: absolute;
@@ -825,6 +865,157 @@
             #meditation-card, #yoga-card { width: 280px !important; }
         }
 
+        /* ── LOGIN SCREEN ── */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        #login-screen .ls-title {
+            font-size: 72px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FF00FF 0%, #FF006E 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+        #login-screen .ls-sub {
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        #login-screen .ls-line {
+            width: 60px;
+            height: 2px;
+            background: #FF00FF;
+            margin: 30px auto;
+        }
+        #login-screen .ls-desc {
+            font-size: 16px;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+        #login-screen .ls-google-btn {
+            margin-top: 40px;
+            width: 280px;
+            height: 52px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        #login-screen .ls-google-btn:hover {
+            border-color: rgba(255,0,255,0.5);
+            background: rgba(255,0,255,0.08);
+        }
+        #login-screen .ls-guest {
+            margin-top: 14px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        #login-screen .ls-guest:hover {
+            color: rgba(255,255,255,0.6);
+            text-decoration: underline;
+        }
+        /* ── ONBOARDING EFFECTS ── */
+        #login-screen { overflow: hidden; }
+
+        /* Breathing glow behind title */
+        #ls-glow {
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,0,255,0.22), transparent 70%);
+            pointer-events: none;
+            animation: lsBreathing 6s ease-in-out infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        @keyframes lsBreathing {
+            0%, 100% { opacity: 0.08; transform: translate(-50%, -50%) scale(1); }
+            50%       { opacity: 0.20; transform: translate(-50%, -50%) scale(1.15); }
+        }
+
+        /* Cursor glow (onboarding only) */
+        #cursor-glow {
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,0,255,0.07), transparent 70%);
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.4s;
+        }
+
+        /* Card inner glow overlay */
+        .mc-glow {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .ms-card { position: relative; overflow: hidden; }
+        .ms-card:hover .mc-glow { opacity: 1; }
+
+        /* Welcome bar on mode selection */
+        #ms-welcome {
+            position: absolute;
+            top: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        #ms-signout {
+            position: absolute;
+            top: 28px;
+            right: 40px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        #ms-signout:hover { color: rgba(255,255,255,0.6); }
+
         /* ── AMBIENT PARTICLE CANVAS ── */
         #amb-canvas {
             position: fixed;
@@ -949,6 +1140,20 @@
 </head>
 
 <body>
+    <!-- Login screen — shown until auth resolves -->
+    <div id="login-screen">
+        <div id="ls-glow"></div>
+        <div class="ls-title">AURA&gt;EGO</div>
+        <div class="ls-sub">Guided Spatial Wellness</div>
+        <div class="ls-line"></div>
+        <p class="ls-desc">Sign in to begin your practice and<br>save your session history.</p>
+        <button class="ls-google-btn" onclick="signInWithGoogle()">CONTINUE WITH GOOGLE</button>
+        <button class="ls-guest" onclick="continueAsGuest()">or continue as guest</button>
+    </div>
+    <div id="cursor-glow"></div>
+
+    <canvas id="body-canvas"></canvas>
+    <canvas id="three-canvas"></canvas>
     <div id="ort-prompt">Rotate device for best experience</div>
     <div id="ldr">✨ Illuminating Space...</div>
 
@@ -967,6 +1172,8 @@
     </div>
 
     <div id="mode-select-ui">
+        <div id="ms-welcome"></div>
+        <button id="ms-signout" onclick="signOut()">Sign Out</button>
         <h1 class="ms-title" style="
             font-size: 56px;
             font-weight: 700;
@@ -985,6 +1192,7 @@
         <div class="ms-cards">
             <!-- MEDITATION CARD -->
             <div id="meditation-card" class="ms-card mdt" onclick="selectMode('MEDITATION_STRETCH')">
+                <div class="mc-glow"></div>
                 <div class="mc-icon-area">🧘</div>
                 <div class="mc-title">Meditation &amp; Stretch</div>
                 <div class="mc-accent"></div>
@@ -1003,6 +1211,7 @@
 
             <!-- YOGA CARD -->
             <div id="yoga-card" class="ms-card yga" onclick="selectMode('GUIDED_YOGA')">
+                <div class="mc-glow"></div>
                 <div class="mc-icon-area">🌊</div>
                 <div class="mc-title">Guided Yoga Flow</div>
                 <div class="mc-accent"></div>
@@ -1089,6 +1298,67 @@
     <div id="p5-c"></div>
 
     <script>
+        // ---------- AUTH ----------
+        let currentUser = null;
+        let isGuest = false;
+
+        function _hideLogin() {
+            document.getElementById('login-screen').style.display = 'none';
+        }
+
+        function _updateWelcome() {
+            const wel = document.getElementById('ms-welcome');
+            const so  = document.getElementById('ms-signout');
+            if (currentUser) {
+                const first = (currentUser.displayName || '').split(' ')[0].toUpperCase();
+                wel.textContent = first ? `WELCOME BACK, ${first}` : 'WELCOME BACK';
+                so.style.display = 'block';
+            } else {
+                wel.textContent = 'WELCOME';
+                so.style.display = 'none';
+            }
+        }
+
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    currentUser = result.user;
+                    isGuest = false;
+                    _hideLogin();
+                    _updateWelcome();
+                })
+                .catch(err => console.error('[AUTH] Sign-in failed:', err));
+        }
+
+        function continueAsGuest() {
+            isGuest = true;
+            currentUser = null;
+            _hideLogin();
+            _updateWelcome();
+        }
+
+        function signOut() {
+            auth.signOut().then(() => {
+                currentUser = null;
+                isGuest = false;
+                document.getElementById('login-screen').style.display = 'flex';
+                // Return to homepage state so the user re-authenticates before selecting a mode
+                if (typeof changeState !== 'undefined') changeState(appStates.HOMEPAGE);
+            }).catch(err => console.error('[AUTH] Sign-out failed:', err));
+        }
+
+        // Re-use existing session — fires before the rest of the app renders
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                isGuest = false;
+                _hideLogin();
+                _updateWelcome();
+            }
+            // If no user: leave login screen visible (default state)
+        });
+
         // ---------- GLOBAL & CONFIG ----------
         let pLMs = null, coM = { x: 0.5, y: 0.5 }, smI = 0, dbg = false, mdLd = false, pzd = false, hC = false;
         let sTm = -1, sCmp = false, lFt = Date.now(), curGrav = 0, curDrg = 0.98;
@@ -1321,6 +1591,87 @@
             // expose so changeState can toggle
             window.ambParticles = { start, stop };
         })();
+
+        // ── ONBOARDING MOUSE EFFECTS ─────────────────────────────────────────
+        (function () {
+            let rawX = 0, rawY = 0;   // normalised -1..1
+            let lerpX = 0, lerpY = 0; // smoothed
+
+            const cursorGlow = document.getElementById('cursor-glow');
+            const loginScreen = document.getElementById('login-screen');
+            const lsTitle = loginScreen.querySelector('.ls-title');
+            const lsSub   = loginScreen.querySelector('.ls-sub');
+            const lsLine  = loginScreen.querySelector('.ls-line');
+            const lsDesc  = loginScreen.querySelector('.ls-desc');
+            const msCards = Array.from(document.querySelectorAll('.ms-card'));
+
+            // ── Mouse tracking ──
+            document.addEventListener('mousemove', e => {
+                rawX = (e.clientX / window.innerWidth  - 0.5) * 2;
+                rawY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+                // Cursor glow follows instantly
+                cursorGlow.style.left = e.clientX + 'px';
+                cursorGlow.style.top  = e.clientY + 'px';
+
+                // Card inner glow follows cursor within each card
+                msCards.forEach(card => {
+                    const glow = card.querySelector('.mc-glow');
+                    if (!glow) return;
+                    const r = card.getBoundingClientRect();
+                    const px = ((e.clientX - r.left) / r.width  * 100).toFixed(1);
+                    const py = ((e.clientY - r.top)  / r.height * 100).toFixed(1);
+                    glow.style.background =
+                        `radial-gradient(circle at ${px}% ${py}%, rgba(255,0,255,0.14), transparent 65%)`;
+                });
+            });
+
+            // ── Card 3-D tilt ──
+            msCards.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const r = card.getBoundingClientRect();
+                    const x = (e.clientX - r.left) / r.width  - 0.5;
+                    const y = (e.clientY - r.top)  / r.height - 0.5;
+                    card.style.transition = 'box-shadow 0.15s';
+                    card.style.transform =
+                        `perspective(1000px) rotateX(${y * -7}deg) rotateY(${x * 7}deg) scale(1.025)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transition = 'transform 0.55s ease, box-shadow 0.55s';
+                    card.style.transform  = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                });
+            });
+
+            // ── Determine which screens are active ──
+            function onboardingActive() {
+                const ls = loginScreen.style.display;
+                const ms = document.getElementById('mode-select-ui');
+                const lsVisible = ls !== 'none' && ls !== '';
+                const msVisible = ms && ms.style.opacity !== '0' && ms.style.display !== 'none';
+                return lsVisible || msVisible;
+            }
+
+            // ── Animation loop — parallax + cursor glow visibility ──
+            function tick() {
+                requestAnimationFrame(tick);
+
+                const active = onboardingActive();
+                cursorGlow.style.opacity = active ? '1' : '0';
+
+                // Smooth lerp
+                lerpX += (rawX - lerpX) * 0.05;
+                lerpY += (rawY - lerpY) * 0.05;
+
+                if (!active) return;
+
+                // Parallax on login elements (different depths)
+                lsTitle.style.transform = `translate(${lerpX * 14}px, ${lerpY *  9}px)`;
+                lsSub.style.transform   = `translate(${lerpX *  8}px, ${lerpY *  5}px)`;
+                lsLine.style.transform  = `translate(${lerpX *  5}px, ${lerpY *  3}px)`;
+                lsDesc.style.transform  = `translate(${lerpX *  4}px, ${lerpY *  3}px)`;
+            }
+            tick();
+        })();
         // ────────────────────────────────────────────────────────────────────
 
         function togglePanel(id) {
@@ -1447,10 +1798,12 @@
         }
         let vE = document.getElementsByClassName('in-v')[0], cE = document.getElementsByClassName('out-c')[0], cCtx = cE.getContext('2d');
         const pObj = new Pose({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
-        pObj.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+        pObj.setOptions({ modelComplexity: 1, smoothLandmarks: true, enableSegmentation: true, smoothSegmentation: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
         let stlT = 0;
+        let segMask = null;
         pObj.onResults(r => {
             if (!mdLd) { mdLd = true; document.getElementById('ldr').style.display = 'none'; }
+            segMask = r.segmentationMask || null;
             if (r.poseLandmarks) {
                 pLMs = r.poseLandmarks; let sx = 0, sy = 0, c = 0;
                 for (let l of pLMs) { if (l.visibility > 0.5) { sx += l.x; sy += l.y; c++; } }
@@ -1717,7 +2070,7 @@
 
             // --- BACKGROUND BAR ---
             noStroke();
-            fill(10, 10, 10, 250);
+            fill(10, 10, 10, 120);
             rect(0, BAR_Y, width, BAR_H);
 
             // --- TOP BORDER (coral pink, 2px) ---
@@ -1812,6 +2165,406 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.ambParticles) window.ambParticles.start();
         });
+
+        // ── BODY SILHOUETTE (segmentation canvas) ────────────────────────────
+        (function () {
+            const bodyCanvas = document.getElementById('body-canvas');
+            const ctx = bodyCanvas.getContext('2d');
+
+            // Off-screen canvas used to build the composite before blitting,
+            // so the glow self-composite doesn't read unfinished pixels.
+            const offCanvas = document.createElement('canvas');
+            const offCtx = offCanvas.getContext('2d');
+
+            function resize() {
+                bodyCanvas.width  = window.innerWidth;
+                bodyCanvas.height = window.innerHeight;
+                offCanvas.width   = window.innerWidth;
+                offCanvas.height  = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            function renderBodySilhouette() {
+                const active = typeof currentState !== 'undefined' &&
+                               currentState === (typeof appStates !== 'undefined' ? appStates.SESSION_ACTIVE : null);
+
+                if (!active || !segMask) {
+                    bodyCanvas.style.opacity = '0';
+                    return;
+                }
+
+                const W = bodyCanvas.width, H = bodyCanvas.height;
+
+                // ── Build silhouette on off-screen canvas ──
+                offCtx.clearRect(0, 0, W, H);
+
+                // Step 1: draw the segmentation mask as an alpha stencil.
+                offCtx.globalCompositeOperation = 'source-over';
+                offCtx.drawImage(segMask, 0, 0, W, H);
+
+                // Step 2: fill clipped area with subtle neon gradient.
+                offCtx.globalCompositeOperation = 'source-in';
+                const grad = offCtx.createLinearGradient(0, 0, 0, H);
+                grad.addColorStop(0,    'rgba(255,  0, 255, 0.25)');  // head — magenta
+                grad.addColorStop(0.38, 'rgba(255,  0, 110, 0.25)');  // torso — fuchsia
+                grad.addColorStop(1,    'rgba(255, 95,  31, 0.25)');  // legs  — orange
+                offCtx.fillStyle = grad;
+                offCtx.fillRect(0, 0, W, H);
+
+                // ── Composite onto visible canvas ──
+                ctx.clearRect(0, 0, W, H);
+
+                // Base silhouette
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.drawImage(offCanvas, 0, 0);
+
+                // Glow pass 1 — wide soft halo
+                ctx.globalCompositeOperation = 'screen';
+                ctx.filter = 'blur(6px)';
+                ctx.drawImage(offCanvas, 0, 0);
+
+                // Glow pass 2 — tight edge bloom
+                ctx.filter = 'blur(2px)';
+                ctx.drawImage(offCanvas, 0, 0);
+
+                ctx.filter = 'none';
+                ctx.globalCompositeOperation = 'source-over';
+
+                // Breathing pulse — 6-second cycle, 0.30 → 0.45
+                const pulse = 0.30 + Math.sin(Date.now() * 0.00105) * 0.15;
+                bodyCanvas.style.opacity = String(pulse);
+            }
+
+            // Run at ~60 fps independent of p5 and Three.js loops
+            function bodyLoop() {
+                requestAnimationFrame(bodyLoop);
+                renderBodySilhouette();
+            }
+            bodyLoop();
+        })();
+
+        // ── THREE.JS NEON SKELETON ───────────────────────────────────────────
+        (function () {
+            // --- Scene & renderer ---
+            const skelCanvas = document.getElementById('three-canvas');
+            const skelRenderer = new THREE.WebGLRenderer({ canvas: skelCanvas, alpha: true, antialias: true });
+            skelRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            skelRenderer.setSize(window.innerWidth, window.innerHeight);
+            skelRenderer.setClearColor(0x000000, 0);
+
+            const skelScene = new THREE.Scene();
+
+            // Orthographic camera — landmarks are already in 0-1 normalised space,
+            // so an ortho cam avoids any perspective distortion on the 2-D overlay.
+            // We map landmarks into the range (-aspect..aspect, -1..1) in world space.
+            const aspect = window.innerWidth / window.innerHeight;
+            const skelCamera = new THREE.OrthographicCamera(
+                -aspect, aspect,   // left, right
+                1, -1,             // top, bottom
+                0.1, 10
+            );
+            skelCamera.position.set(0, 0, 5);
+            skelCamera.lookAt(0, 0, 0);
+
+            // Minimal lighting — emissive materials are self-lit, but MeshStandardMaterial
+            // needs at least an ambient light to show non-emissive parts.
+            skelScene.add(new THREE.AmbientLight(0xffffff, 0.4));
+            const skelKey = new THREE.DirectionalLight(0xFF00FF, 0.6);
+            skelKey.position.set(0, 1, 3);
+            skelScene.add(skelKey);
+
+            // --- Landmark → world-space conversion ---
+            // MediaPipe: x,y in 0..1, y increases downward.
+            // We remap to (-aspect..aspect, -1..1) to fill the ortho frustum.
+            function lmWorld(lm) {
+                return {
+                    x:  (lm.x - 0.5) * 2 * aspect,   // mirror OFF — reflect like a mirror
+                    y: -(lm.y - 0.5) * 2,              // flip Y
+                    z:  (lm.z || 0) * 0.3,
+                };
+            }
+
+            // --- Joint spheres (33 landmarks) ---
+            // Major joints rendered slightly larger than face/extremity points.
+            const MAJOR_JOINTS = new Set([11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]);
+
+            const MAT_A = new THREE.MeshStandardMaterial({
+                color: 0xFF00FF, emissive: new THREE.Color(0xFF00FF),
+                emissiveIntensity: 0.9, metalness: 0.2, roughness: 0.3,
+                transparent: true, opacity: 0.92,
+            });
+            const MAT_B = new THREE.MeshStandardMaterial({
+                color: 0xFF006E, emissive: new THREE.Color(0xFF006E),
+                emissiveIntensity: 0.9, metalness: 0.2, roughness: 0.3,
+                transparent: true, opacity: 0.92,
+            });
+
+            const jointSpheres = [];
+            for (let i = 0; i < 33; i++) {
+                const r = MAJOR_JOINTS.has(i) ? 0.025 : 0.015;
+                const geo = new THREE.SphereGeometry(r, 12, 12);
+                const mat = (i % 2 === 0) ? MAT_A.clone() : MAT_B.clone();
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.visible = false;   // hidden until we get landmark data
+                skelScene.add(mesh);
+                jointSpheres.push(mesh);
+            }
+
+            // --- Bone connections (lines between landmark pairs) ---
+            const BONE_CONNECTIONS = [
+                // Face outline
+                [0, 1], [1, 2], [2, 3], [3, 7],
+                [0, 4], [4, 5], [5, 6], [6, 8],
+                [9, 10],
+                // Torso
+                [11, 12], [11, 23], [12, 24], [23, 24],
+                // Left arm
+                [11, 13], [13, 15], [15, 17], [15, 19], [15, 21],
+                // Right arm
+                [12, 14], [14, 16], [16, 18], [16, 20], [16, 22],
+                // Left leg
+                [23, 25], [25, 27], [27, 29], [27, 31], [29, 31],
+                // Right leg
+                [24, 26], [26, 28], [28, 30], [28, 32], [30, 32],
+            ];
+
+            const LINE_MAT = new THREE.LineBasicMaterial({ color: 0xFF00FF, transparent: true, opacity: 0.7 });
+
+            const boneLines = BONE_CONNECTIONS.map(([a, b]) => {
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+                const line = new THREE.Line(geo, LINE_MAT.clone());
+                line.visible = false;
+                skelScene.add(line);
+                return { line, a, b };
+            });
+
+            // ── BODY GEOMETRY ────────────────────────────────────────────────────
+            // Semi-transparent neon material — two tones, left/right sides.
+            function makeBodyMat(hex) {
+                return new THREE.MeshPhongMaterial({
+                    color: hex,
+                    emissive: hex,
+                    emissiveIntensity: 0.35,
+                    transparent: true,
+                    opacity: 0.45,
+                    depthWrite: false,   // prevents z-fighting with skeleton lines
+                });
+            }
+
+            // Build a capsule group: cylinder + two end-caps.
+            // The group's local Y-axis runs along the long axis — aligned later via
+            // Quaternion.setFromUnitVectors(Y_UP, limbDir) which avoids the lookAt/Y-axis bug.
+            function makeCapsule(radius, length, hex) {
+                const mat = makeBodyMat(hex);
+                const group = new THREE.Group();
+                const cyl = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 16, 1, true), mat.clone());
+                group.add(cyl);
+                const capGeo = new THREE.SphereGeometry(radius, 16, 8);
+                const capT = new THREE.Mesh(capGeo, mat.clone());
+                capT.position.y =  length / 2;
+                group.add(capT);
+                const capB = new THREE.Mesh(capGeo.clone(), mat.clone());
+                capB.position.y = -length / 2;
+                group.add(capB);
+                return group;
+            }
+
+            // HEAD
+            const headMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(0.09, 24, 24),
+                makeBodyMat(0xFF00FF)
+            );
+            headMesh.visible = false;
+            skelScene.add(headMesh);
+
+            // TORSO
+            const torsoMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.12, 0.10, 0.01, 20),  // placeholder — scaled dynamically
+                makeBodyMat(0xFF00AA)
+            );
+            torsoMesh.visible = false;
+            skelScene.add(torsoMesh);
+
+            // LIMBS  [group, proximal-lm, distal-lm, radius, color]
+            const LIMB_DEFS = [
+                { key: 'luArm',  prox: 11, dist: 13, r: 0.045, hex: 0xFF00FF },  // L upper arm
+                { key: 'llArm',  prox: 13, dist: 15, r: 0.038, hex: 0xFF00FF },  // L lower arm
+                { key: 'ruArm',  prox: 12, dist: 14, r: 0.045, hex: 0xFF006E },  // R upper arm
+                { key: 'rlArm',  prox: 14, dist: 16, r: 0.038, hex: 0xFF006E },  // R lower arm
+                { key: 'luLeg',  prox: 23, dist: 25, r: 0.062, hex: 0xFF00FF },  // L upper leg
+                { key: 'llLeg',  prox: 25, dist: 27, r: 0.050, hex: 0xFF00FF },  // L lower leg
+                { key: 'ruLeg',  prox: 24, dist: 26, r: 0.062, hex: 0xFF006E },  // R upper leg
+                { key: 'rlLeg',  prox: 26, dist: 28, r: 0.050, hex: 0xFF006E },  // R lower leg
+            ];
+
+            // Create capsules with a placeholder length of 1 — we rescale each frame.
+            const limbGroups = {};
+            const _Y_UP = new THREE.Vector3(0, 1, 0);
+            const _limbQ = new THREE.Quaternion();
+            const _limbV = new THREE.Vector3();
+
+            for (const def of LIMB_DEFS) {
+                const g = makeCapsule(def.r, 1.0, def.hex);
+                g.visible = false;
+                skelScene.add(g);
+                limbGroups[def.key] = { group: g, def };
+            }
+
+            // Scratch Vec3s — reused every frame to avoid GC pressure
+            const _pA = new THREE.Vector3();
+            const _pB = new THREE.Vector3();
+            const _mid = new THREE.Vector3();
+            const _dir = new THREE.Vector3();
+
+            // Position + orient a capsule between two world-space points.
+            // Capsule children[0] = cylinder, children[1/2] = end caps.
+            function positionCapsule(group, wA, wB) {
+                _pA.set(wA.x, wA.y, wA.z);
+                _pB.set(wB.x, wB.y, wB.z);
+                _mid.addVectors(_pA, _pB).multiplyScalar(0.5);
+                _dir.subVectors(_pB, _pA);
+                const len = _dir.length();
+                if (len < 0.001) { group.visible = false; return false; }
+
+                group.position.copy(_mid);
+
+                // Scale the cylinder child along Y to match limb length
+                const cyl = group.children[0];
+                cyl.scale.y = len;
+                // Move end-cap children to ±half length
+                group.children[1].position.y =  len / 2;
+                group.children[2].position.y = -len / 2;
+
+                // Rotate group so local Y aligns with limb direction
+                _limbV.copy(_dir).normalize();
+                _limbQ.setFromUnitVectors(_Y_UP, _limbV);
+                group.quaternion.copy(_limbQ);
+
+                group.visible = true;
+                return true;
+            }
+
+            // ── UPDATE SKELETON + BODY every frame ──────────────────────────────
+            function updateSkeleton() {
+                const active = typeof currentState !== 'undefined' &&
+                               currentState === (typeof appStates !== 'undefined' ? appStates.SESSION_ACTIVE : null);
+
+                skelCanvas.classList.toggle('vis', active);
+
+                const hideAll = () => {
+                    jointSpheres.forEach(s => { s.visible = false; });
+                    boneLines.forEach(({ line }) => { line.visible = false; });
+                    headMesh.visible = false;
+                    torsoMesh.visible = false;
+                    for (const { group } of Object.values(limbGroups)) group.visible = false;
+                };
+
+                if (!active || !pLMs || pLMs.length < 33) { hideAll(); return; }
+
+                // ── Joint spheres — debug mode only ──
+                const showSkel = typeof dbg !== 'undefined' && dbg;
+                for (let i = 0; i < 33; i++) {
+                    const lm = pLMs[i];
+                    const sphere = jointSpheres[i];
+                    if (!showSkel || !lm || (lm.visibility !== undefined && lm.visibility < 0.15)) {
+                        sphere.visible = false; continue;
+                    }
+                    const w = lmWorld(lm);
+                    sphere.position.set(w.x, w.y, w.z);
+                    sphere.material.opacity = Math.max(0.3, lm.visibility !== undefined ? lm.visibility : 0.9);
+                    sphere.visible = true;
+                }
+
+                // ── Bone lines — debug mode only ──
+                for (const { line, a, b } of boneLines) {
+                    const lmA = pLMs[a], lmB = pLMs[b];
+                    if (!showSkel || !lmA || !lmB ||
+                        (lmA.visibility !== undefined && lmA.visibility < 0.15) ||
+                        (lmB.visibility !== undefined && lmB.visibility < 0.15)) {
+                        line.visible = false; continue;
+                    }
+                    const wA = lmWorld(lmA), wB = lmWorld(lmB);
+                    const pos = line.geometry.attributes.position.array;
+                    pos[0] = wA.x; pos[1] = wA.y; pos[2] = wA.z;
+                    pos[3] = wB.x; pos[4] = wB.y; pos[5] = wB.z;
+                    line.geometry.attributes.position.needsUpdate = true;
+                    line.material.opacity = Math.min(
+                        lmA.visibility !== undefined ? lmA.visibility : 0.7,
+                        lmB.visibility !== undefined ? lmB.visibility : 0.7
+                    ) * 0.85;
+                    line.visible = true;
+                }
+
+                // ── 3D body geometry — debug mode only ──
+                // (segmentation silhouette covers the human shape in normal mode)
+                const showBody = typeof dbg !== 'undefined' && dbg;
+
+                // HEAD
+                const nose = pLMs[0];
+                if (showBody && nose && (nose.visibility === undefined || nose.visibility >= 0.15)) {
+                    const w = lmWorld(nose);
+                    headMesh.position.set(w.x, w.y, w.z);
+                    const ls = lmWorld(pLMs[11]), rs = lmWorld(pLMs[12]);
+                    const shoulderW = Math.sqrt((rs.x - ls.x) ** 2 + (rs.y - ls.y) ** 2) || 0.18;
+                    headMesh.scale.setScalar((shoulderW * 0.45) / 0.09);
+                    headMesh.visible = true;
+                } else {
+                    headMesh.visible = false;
+                }
+
+                // TORSO
+                const lSh = pLMs[11], rSh = pLMs[12], lHp = pLMs[23], rHp = pLMs[24];
+                const torsoLmsOk = [lSh, rSh, lHp, rHp].every(
+                    lm => lm && (lm.visibility === undefined || lm.visibility >= 0.15)
+                );
+                if (showBody && torsoLmsOk) {
+                    const wLS = lmWorld(lSh), wRS = lmWorld(rSh);
+                    const wLH = lmWorld(lHp), wRH = lmWorld(rHp);
+                    const topX = (wLS.x + wRS.x) / 2, topY = (wLS.y + wRS.y) / 2;
+                    const botX = (wLH.x + wRH.x) / 2, botY = (wLH.y + wRH.y) / 2;
+                    const torsoLen = Math.sqrt((botX - topX) ** 2 + (botY - topY) ** 2) || 0.4;
+                    const torsoW   = Math.sqrt((wRS.x - wLS.x) ** 2 + (wRS.y - wLS.y) ** 2) * 0.9 || 0.25;
+                    torsoMesh.position.set((topX + botX) / 2, (topY + botY) / 2, 0);
+                    torsoMesh.scale.set(torsoW / 0.12, torsoLen / 0.01, 0.8);
+                    _dir.set(botX - topX, botY - topY, 0).normalize();
+                    if (_dir.lengthSq() > 0.001) { _limbQ.setFromUnitVectors(_Y_UP, _dir); torsoMesh.quaternion.copy(_limbQ); }
+                    torsoMesh.visible = true;
+                } else {
+                    torsoMesh.visible = false;
+                }
+
+                // LIMBS
+                for (const { group, def } of Object.values(limbGroups)) {
+                    const lmA = pLMs[def.prox], lmB = pLMs[def.dist];
+                    if (!showBody || !lmA || !lmB ||
+                        (lmA.visibility !== undefined && lmA.visibility < 0.2) ||
+                        (lmB.visibility !== undefined && lmB.visibility < 0.2)) {
+                        group.visible = false; continue;
+                    }
+                    positionCapsule(group, lmWorld(lmA), lmWorld(lmB));
+                }
+            }
+
+            // --- Render loop ---
+            function skelLoop() {
+                requestAnimationFrame(skelLoop);
+                updateSkeleton();
+                skelRenderer.render(skelScene, skelCamera);
+            }
+            skelLoop();
+
+            // --- Resize ---
+            window.addEventListener('resize', () => {
+                const a = window.innerWidth / window.innerHeight;
+                skelCamera.left   = -a;
+                skelCamera.right  =  a;
+                skelCamera.updateProjectionMatrix();
+                skelRenderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        })();
+        // ── END THREE.JS RIG ─────────────────────────────────────────────────
     </script>
 </body>
 </html>
